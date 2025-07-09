@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=VT323&display=swap" rel="stylesheet">
     
     <style>
         /* --- Base Styles --- */
@@ -131,6 +131,11 @@
         .forest-theme .theme-option-btn:hover { background-color: rgba(110, 231, 183, 0.1); }
         .crimson-theme .theme-option-btn:hover { background-color: rgba(220, 38, 38, 0.1); }
         .blueprint-theme .theme-option-btn:hover { background-color: rgba(125, 211, 252, 0.1); }
+        .monochrome-theme .theme-option-btn:hover { background-color: #F3F4F6; }
+        .retro-terminal-theme .theme-option-btn:hover { background-color: rgba(57, 255, 20, 0.1); }
+        .oceanic-theme .theme-option-btn:hover { background-color: rgba(100, 255, 218, 0.1); }
+        .solarized-theme .theme-option-btn:hover { background-color: rgba(181, 137, 0, 0.1); }
+        .iridescent-theme .theme-option-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
 
 
         /* --- Dark Theme (Default) --- */
@@ -328,6 +333,146 @@
         .blueprint-theme .ring-losses { stroke: #FACC15; }
         .blueprint-theme .data-ring-text { color: #FFFFFF; }
         .blueprint-theme .stats-card { background-color: rgba(5, 20, 45, 0.8); }
+
+        /* --- Monochrome Theme --- */
+        .monochrome-theme { background-color: #F3F4F6; color: #111827; font-family: 'Inter', sans-serif; }
+        .monochrome-theme .main-container { background-color: #FFFFFF; border: 1px solid #D1D5DB; }
+        .monochrome-theme .header-text, .monochrome-theme .score-text { color: #111827; }
+        .monochrome-theme .sub-text { color: #6B7280; }
+        .monochrome-theme .btn-positive { background-color: #111827; color: #FFFFFF; }
+        .monochrome-theme .btn-positive:hover { background-color: #374151; }
+        .monochrome-theme .btn-negative { background-color: #E5E7EB; color: #111827; }
+        .monochrome-theme .btn-negative:hover { background-color: #D1D5DB; }
+        .monochrome-theme .btn-neutral { background-color: #FFFFFF; color: #111827; border: 2px solid #111827; }
+        .monochrome-theme .btn-neutral:hover { background-color: #F9FAFB; }
+        .monochrome-theme .btn-secondary, .monochrome-theme .btn-action, .monochrome-theme .dropdown, .monochrome-theme .history-item { background-color: #FFFFFF; border: 1px solid #D1D5DB; color: #111827; }
+        .monochrome-theme .btn-action { background-color: #111827; color: #FFFFFF; }
+        .monochrome-theme .btn-action:hover { background-color: #374151; }
+        .monochrome-theme .stats-value.positive, .monochrome-theme .profit-positive { color: #111827; }
+        .monochrome-theme .stats-value.negative, .monochrome-theme .profit-negative { color: #6B7280; }
+        .monochrome-theme .icon-btn { color: #6B7280; }
+        .monochrome-theme .icon-btn:hover { color: #111827; }
+        .monochrome-theme .score-glow-positive { text-shadow: none; }
+        .monochrome-theme .score-glow-negative { text-shadow: none; }
+        .monochrome-theme .form-input { background-color: #F9FAFB; border: 1px solid #D1D5DB; color: #111827; }
+        .monochrome-theme .form-input::placeholder { color: #9CA3AF; }
+        .monochrome-theme .ring-track { stroke: #E5E7EB; }
+        .monochrome-theme .ring-wins { stroke: #111827; }
+        .monochrome-theme .ring-losses { stroke: #9CA3AF; }
+        .monochrome-theme .data-ring-text { color: #111827; }
+        .monochrome-theme .stats-card { background-color: #F9FAFB; }
+
+        /* --- Retro Terminal Theme --- */
+        .retro-terminal-theme { background-color: #000000; color: #39FF14; font-family: 'VT323', monospace; }
+        .retro-terminal-theme .main-container { background-color: #000000; border: 2px solid #39FF14; }
+        .retro-terminal-theme .header-text, .retro-terminal-theme .score-text { color: #39FF14; text-shadow: 0 0 5px #39FF14; }
+        .retro-terminal-theme .sub-text { color: #34D399; }
+        .retro-terminal-theme .btn-positive { background-color: transparent; color: #39FF14; border-color: #39FF14; }
+        .retro-terminal-theme .btn-positive:hover { background-color: rgba(57, 255, 20, 0.1); }
+        .retro-terminal-theme .btn-negative { background-color: transparent; color: #FFB000; border-color: #FFB000; }
+        .retro-terminal-theme .btn-negative:hover { background-color: rgba(255, 176, 0, 0.1); }
+        .retro-terminal-theme .btn-neutral { background-color: transparent; color: #39FF14; border-color: #39FF14; }
+        .retro-terminal-theme .btn-neutral:hover { background-color: rgba(57, 255, 20, 0.1); }
+        .retro-terminal-theme .btn-secondary, .retro-terminal-theme .btn-action, .retro-terminal-theme .dropdown, .retro-terminal-theme .history-item { background-color: #000000; border: 1px solid #34D399; color: #34D399; }
+        .retro-terminal-theme .btn-action { background-color: #39FF14; color: #000000; }
+        .retro-terminal-theme .btn-action:hover { background-color: #34D399; }
+        .retro-terminal-theme .stats-value.positive, .retro-terminal-theme .profit-positive { color: #39FF14; }
+        .retro-terminal-theme .stats-value.negative, .retro-terminal-theme .profit-negative { color: #FFB000; }
+        .retro-terminal-theme .icon-btn { color: #34D399; }
+        .retro-terminal-theme .icon-btn:hover { color: #39FF14; }
+        .retro-terminal-theme .score-glow-positive { text-shadow: 0 0 10px #39FF14; }
+        .retro-terminal-theme .score-glow-negative { text-shadow: 0 0 10px #FFB000; }
+        .retro-terminal-theme .form-input { background-color: #000000; border: 1px solid #34D399; color: #39FF14; }
+        .retro-terminal-theme .form-input::placeholder { color: #34D399; }
+        .retro-terminal-theme .ring-track { stroke: rgba(52, 211, 153, 0.3); }
+        .retro-terminal-theme .ring-wins { stroke: #39FF14; }
+        .retro-terminal-theme .ring-losses { stroke: #FFB000; }
+        .retro-terminal-theme .data-ring-text { color: #39FF14; }
+        .retro-terminal-theme .stats-card { background-color: #000000; border: 1px solid #34D399; }
+        
+        /* --- Oceanic Theme --- */
+        .oceanic-theme { background: linear-gradient(to top, #021024, #08203e); color: #E0E7FF; font-family: 'Source Sans Pro', sans-serif; }
+        .oceanic-theme .main-container { background-color: rgba(10, 30, 60, 0.6); backdrop-filter: blur(10px); border: 2px solid #64ffda; }
+        .oceanic-theme .header-text, .oceanic-theme .score-text { color: #E0E7FF; }
+        .oceanic-theme .sub-text { color: #64ffda; }
+        .oceanic-theme .btn-positive { background-color: #FF7F50; color: #021024; }
+        .oceanic-theme .btn-positive:hover { background-color: #FF6347; }
+        .oceanic-theme .btn-negative { background-color: #4f8fc0; color: white; }
+        .oceanic-theme .btn-negative:hover { background-color: #4682B4; }
+        .oceanic-theme .btn-neutral { background-color: #64ffda; color: #021024; }
+        .oceanic-theme .btn-neutral:hover { background-color: #59e3c4; }
+        .oceanic-theme .btn-secondary, .oceanic-theme .btn-action, .oceanic-theme .dropdown, .oceanic-theme .history-item { background-color: rgba(10, 30, 60, 0.8); border-color: #64ffda; color: #E0E7FF; }
+        .oceanic-theme .btn-action { background-color: #64ffda; color: #021024; }
+        .oceanic-theme .btn-action:hover { background-color: #59e3c4; }
+        .oceanic-theme .stats-value.positive, .oceanic-theme .profit-positive { color: #FF7F50; }
+        .oceanic-theme .stats-value.negative, .oceanic-theme .profit-negative { color: #4f8fc0; }
+        .oceanic-theme .icon-btn { color: #64ffda; }
+        .oceanic-theme .icon-btn:hover { color: #E0E7FF; }
+        .oceanic-theme .score-glow-positive { text-shadow: 0 0 15px rgba(255, 127, 80, 0.6); }
+        .oceanic-theme .score-glow-negative { text-shadow: 0 0 15px rgba(79, 143, 192, 0.6); }
+        .oceanic-theme .form-input { background-color: rgba(10, 30, 60, 0.8); border: 1px solid #64ffda; color: #E0E7FF; }
+        .oceanic-theme .form-input::placeholder { color: #64ffda; }
+        .oceanic-theme .ring-track { stroke: rgba(100, 255, 218, 0.3); }
+        .oceanic-theme .ring-wins { stroke: #FF7F50; }
+        .oceanic-theme .ring-losses { stroke: #4f8fc0; }
+        .oceanic-theme .data-ring-text { color: #E0E7FF; }
+        .oceanic-theme .stats-card { background-color: rgba(10, 30, 60, 0.8); }
+
+        /* --- Solarized Theme --- */
+        .solarized-theme { background-color: #002b36; color: #839496; font-family: 'Fira Code', monospace; }
+        .solarized-theme .main-container { background-color: #073642; border: 2px solid #b58900; }
+        .solarized-theme .header-text, .solarized-theme .score-text { color: #839496; }
+        .solarized-theme .sub-text { color: #586e75; }
+        .solarized-theme .btn-positive { background-color: #859900; color: #002b36; }
+        .solarized-theme .btn-positive:hover { background-color: #93a1a1; }
+        .solarized-theme .btn-negative { background-color: #dc322f; color: #002b36; }
+        .solarized-theme .btn-negative:hover { background-color: #cb4b16; }
+        .solarized-theme .btn-neutral { background-color: #2aa198; color: #002b36; }
+        .solarized-theme .btn-neutral:hover { background-color: #268bd2; }
+        .solarized-theme .btn-secondary, .solarized-theme .btn-action, .solarized-theme .dropdown, .solarized-theme .history-item { background-color: #073642; border-color: #586e75; color: #839496; }
+        .solarized-theme .btn-action { background-color: #2aa198; color: #002b36; }
+        .solarized-theme .btn-action:hover { background-color: #268bd2; }
+        .solarized-theme .stats-value.positive, .solarized-theme .profit-positive { color: #859900; }
+        .solarized-theme .stats-value.negative, .solarized-theme .profit-negative { color: #dc322f; }
+        .solarized-theme .icon-btn { color: #586e75; }
+        .solarized-theme .icon-btn:hover { color: #839496; }
+        .solarized-theme .score-glow-positive { text-shadow: 0 0 8px #859900; }
+        .solarized-theme .score-glow-negative { text-shadow: 0 0 8px #dc322f; }
+        .solarized-theme .form-input { background-color: #002b36; border: 1px solid #586e75; color: #839496; }
+        .solarized-theme .form-input::placeholder { color: #586e75; }
+        .solarized-theme .ring-track { stroke: #586e75; }
+        .solarized-theme .ring-wins { stroke: #859900; }
+        .solarized-theme .ring-losses { stroke: #dc322f; }
+        .solarized-theme .data-ring-text { color: #839496; }
+        .solarized-theme .stats-card { background-color: #073642; border: 1px solid #586e75; }
+
+        /* --- Iridescent Theme --- */
+        .iridescent-theme { background: linear-gradient(45deg, #a7f3d0, #bae6fd, #fbcfe8, #fef08a); color: #581c87; font-family: 'Poppins', sans-serif; }
+        .iridescent-theme .main-container { background-color: rgba(255, 255, 255, 0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.8); }
+        .iridescent-theme .header-text, .iridescent-theme .score-text { color: #581c87; }
+        .iridescent-theme .sub-text { color: #0f766e; }
+        .iridescent-theme .btn-positive { background-color: rgba(167, 243, 208, 0.7); color: #064e3b; border-color: #a7f3d0; }
+        .iridescent-theme .btn-positive:hover { background-color: rgba(167, 243, 208, 1); }
+        .iridescent-theme .btn-negative { background-color: rgba(251, 207, 232, 0.7); color: #831843; border-color: #fbcfe8; }
+        .iridescent-theme .btn-negative:hover { background-color: rgba(251, 207, 232, 1); }
+        .iridescent-theme .btn-neutral { background-color: rgba(216, 180, 254, 0.7); color: #581c87; border-color: #d8b4fe; }
+        .iridescent-theme .btn-neutral:hover { background-color: rgba(216, 180, 254, 1); }
+        .iridescent-theme .btn-secondary, .iridescent-theme .btn-action, .iridescent-theme .dropdown, .iridescent-theme .history-item { background-color: rgba(255, 255, 255, 0.4); border-color: rgba(15, 118, 110, 0.2); color: #0f766e; }
+        .iridescent-theme .btn-action { background-color: rgba(216, 180, 254, 0.8); color: #581c87; }
+        .iridescent-theme .btn-action:hover { background-color: rgba(216, 180, 254, 1); }
+        .iridescent-theme .stats-value.positive, .iridescent-theme .profit-positive { color: #065f46; }
+        .iridescent-theme .stats-value.negative, .iridescent-theme .profit-negative { color: #9d174d; }
+        .iridescent-theme .icon-btn { color: #0f766e; }
+        .iridescent-theme .icon-btn:hover { color: #581c87; }
+        .iridescent-theme .score-glow-positive { text-shadow: 0 0 10px rgba(52, 211, 153, 0.7); }
+        .iridescent-theme .score-glow-negative { text-shadow: 0 0 10px rgba(251, 146, 198, 0.7); }
+        .iridescent-theme .form-input { background-color: rgba(255, 255, 255, 0.5); border: 1px solid rgba(15, 118, 110, 0.3); color: #581c87; }
+        .iridescent-theme .form-input::placeholder { color: #115e59; }
+        .iridescent-theme .ring-track { stroke: rgba(15, 118, 110, 0.2); }
+        .iridescent-theme .ring-wins { stroke: #a7f3d0; }
+        .iridescent-theme .ring-losses { stroke: #fbcfe8; }
+        .iridescent-theme .data-ring-text { color: #581c87; }
+        .iridescent-theme .stats-card { background-color: rgba(255, 255, 255, 0.5); }
     </style>
 </head>
 <body class="dark-theme app-body">
@@ -514,6 +659,26 @@
                 <button class="theme-option-btn" data-theme="blueprint-theme">
                     <span class="font-semibold">Blueprint</span>
                     <div class="w-16 h-8 rounded-full border-2 border-cyan-300" style="background-color: #0A2240;"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="monochrome-theme">
+                    <span class="font-semibold">Monochrome</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-gray-300" style="background-color: #F3F4F6;"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="retro-terminal-theme">
+                    <span class="font-semibold">Retro Terminal</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-green-500" style="background-color: #000000;"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="oceanic-theme">
+                    <span class="font-semibold">Oceanic</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-teal-300" style="background: linear-gradient(to top, #021024, #08203e);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="solarized-theme">
+                    <span class="font-semibold">Solarized</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-yellow-600" style="background-color: #002b36;"></div>
+                </button>
+                 <button class="theme-option-btn" data-theme="iridescent-theme">
+                    <span class="font-semibold">Iridescent</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-purple-200" style="background: linear-gradient(45deg, #a7f3d0, #bae6fd, #fbcfe8, #fef08a);"></div>
                 </button>
             </div>
         </div>
