@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading P/L Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Base Styles --- */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        body {
+            font-family: 'Lato', 'Poppins', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        .app-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 420px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            height: 95vh;
+            max-height: 900px;
+            transition: background-color 0.3s ease, border 0.3s ease;
+        }
+        .calc-btn {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 15px -1px rgba(0,0,0,0.1);
+            transition: all 0.15s ease-in-out;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .calc-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 5px -1px rgba(0,0,0,0.1);
+        }
+        .btn { @apply font-bold rounded-lg shadow-md transition-transform transform hover:scale-105 active:scale-95; }
+        
+        /* --- View Switcher Styles --- */
+        .view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+        .view.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .icon-btn { @apply p-1 transition-colors duration-200; }
+        .stats-label { @apply text-sm font-medium; }
+        .stats-value { @apply text-lg font-semibold; }
+        .form-input { @apply w-full rounded-md p-2 mt-1; }
+
+        /* --- Data Ring Styles --- */
+        .data-ring-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+        }
+        .data-ring-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .data-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-out;
+        }
+        .data-ring-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+        }
+        .data-ring-text .value { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+        .data-ring-details { display: none; }
+
+        .data-ring-container.show-details .data-ring-total { display: none; }
+        .data-ring-container.show-details .data-ring-details { display: flex; }
+        .data-ring-container.show-details .data-ring-svg { opacity: 0.2; }
+        .data-ring-details .profit-value { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+        .data-ring-details .wl-value { font-size: 0.8rem; font-weight: 500; }
+
+        /* --- Theme Option Button --- */
+        .theme-option-btn { @apply w-full flex justify-between items-center p-4 rounded-lg transition-colors duration-200; }
+        .dark-theme .theme-option-btn:hover { background-color: #2d3748; }
+        .ice-theme .theme-option-btn:hover { background-color: #e2e8f0; }
+        .sunrise-theme .theme-option-btn:hover { background-color: rgba(255, 255, 255, 0.4); }
+        .cyberpunk-theme .theme-option-btn:hover { background-color: rgba(34, 211, 238, 0.1); }
+        .forest-theme .theme-option-btn:hover { background-color: rgba(110, 231, 183, 0.1); }
+        .crimson-theme .theme-option-btn:hover { background-color: rgba(220, 38, 38, 0.1); }
+        .blueprint-theme .theme-option-btn:hover { background-color: rgba(125, 211, 252, 0.1); }
+
+
+        /* --- Dark Theme (Default) --- */
+        .dark-theme { background: linear-gradient(to top, #000000, #111111); color: #F9FAFB; font-family: 'Poppins', sans-serif; }
+        .dark-theme .main-container { background-color: rgba(17, 17, 17, 0.5); border: none; }
+        .dark-theme .header-text, .dark-theme .score-text { color: #fff; }
+        .dark-theme .sub-text { color: #a0aec0; }
+        .dark-theme .btn-positive { background-color: #15803d; color: white; }
+        .dark-theme .btn-positive:hover { background-color: #16a34a; }
+        .dark-theme .btn-negative { background-color: #b91c1c; color: white; }
+        .dark-theme .btn-negative:hover { background-color: #dc2626; }
+        .dark-theme .btn-neutral { background-color: #374151; color: white; }
+        .dark-theme .btn-neutral:hover { background-color: #4b5563; }
+        .dark-theme .btn-secondary, .dark-theme .btn-action, .dark-theme .dropdown, .dark-theme .history-item { background-color: #1a202c; border-color: #2d3748; color: #e2e8f0; }
+        .dark-theme .btn-action { background-color: #2b6cb0; }
+        .dark-theme .btn-action:hover { background-color: #3182ce; }
+        .dark-theme .stats-value.positive, .dark-theme .profit-positive { color: #48bb78; }
+        .dark-theme .stats-value.negative, .dark-theme .profit-negative { color: #f56565; }
+        .dark-theme .icon-btn { color: #a0aec0; }
+        .dark-theme .icon-btn:hover { color: #fff; }
+        .dark-theme .score-glow-positive { text-shadow: 0 0 15px rgba(72, 187, 120, 0.5); }
+        .dark-theme .score-glow-negative { text-shadow: 0 0 15px rgba(245, 101, 101, 0.5); }
+        .dark-theme .form-input { background-color: #2d3748; border: 1px solid #4a5568; color: #F9FAFB; }
+        .dark-theme .form-input::placeholder { color: #718096; }
+        .dark-theme .ring-track { stroke: #2d3748; }
+        .dark-theme .ring-wins { stroke: #48bb78; }
+        .dark-theme .ring-losses { stroke: #f56565; }
+        .dark-theme .data-ring-text { color: #e2e8f0; }
+        .dark-theme .stats-card { background-color: #2d3748; }
+
+        /* --- Ice Theme --- */
+        .ice-theme { background: linear-gradient(to top, #f3e5f5, #e0f7fa); color: #2d3748; font-family: 'Lato', sans-serif; }
+        .ice-theme .main-container { background-color: rgba(255, 255, 255, 0.5); border: none; }
+        .ice-theme .header-text, .ice-theme .score-text { color: #1a202c; }
+        .ice-theme .sub-text { color: #718096; }
+        .ice-theme .btn-positive { background-color: transparent; color: #3182ce; border-color: #3182ce; }
+        .ice-theme .btn-positive:hover { background-color: #3182ce; color: white; }
+        .ice-theme .btn-negative { background-color: transparent; color: #805ad5; border-color: #805ad5; }
+        .ice-theme .btn-negative:hover { background-color: #805ad5; color: white; }
+        .ice-theme .btn-neutral { background-color: #e2e8f0; color: #2d3748; }
+        .ice-theme .btn-neutral:hover { background-color: #cbd5e0; }
+        .ice-theme .btn-secondary, .ice-theme .btn-action, .ice-theme .dropdown, .ice-theme .history-item { background-color: #fff; border-color: #e2e8f0; color: #2d3748; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
+        .ice-theme .btn-action { background-color: #805ad5; color: white; }
+        .ice-theme .btn-action:hover { background-color: #9f7aea; }
+        .ice-theme .stats-value.positive, .ice-theme .profit-positive { color: #3182ce; }
+        .ice-theme .stats-value.negative, .ice-theme .profit-negative { color: #805ad5; }
+        .ice-theme .icon-btn { color: #718096; }
+        .ice-theme .icon-btn:hover { color: #1a202c; }
+        .ice-theme .score-glow-positive { text-shadow: 0 0 15px rgba(56, 161, 105, 0.4); }
+        .ice-theme .score-glow-negative { text-shadow: 0 0 15px rgba(197, 48, 48, 0.4); }
+        .ice-theme .form-input { background-color: #fff; border: 1px solid #cbd5e0; color: #2d3748; }
+        .ice-theme .form-input::placeholder { color: #a0aec0; }
+        .ice-theme .ring-track { stroke: #e2e8f0; }
+        .ice-theme .ring-wins { stroke: #4299e1; }
+        .ice-theme .ring-losses { stroke: #9f7aea; }
+        .ice-theme .data-ring-text { color: #2d3748; }
+        .ice-theme .stats-card { background-color: #fff; }
+
+        /* --- Sunrise Theme --- */
+        .sunrise-theme { background: linear-gradient(to top, #D8B4FE, #FDE68A); color: #422006; font-family: 'Lato', sans-serif; }
+        .sunrise-theme .main-container { background-color: rgba(255, 255, 255, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .sunrise-theme .header-text, .sunrise-theme .score-text { color: #422006; }
+        .sunrise-theme .sub-text { color: #78350F; }
+        .sunrise-theme .btn-positive { background-color: #F97316; color: white; }
+        .sunrise-theme .btn-positive:hover { background-color: #EA580C; }
+        .sunrise-theme .btn-negative { background-color: #581C87; color: white; }
+        .sunrise-theme .btn-negative:hover { background-color: #4C1D95; }
+        .sunrise-theme .btn-neutral { background-color: #854D0E; color: white; }
+        .sunrise-theme .btn-neutral:hover { background-color: #78350F; }
+        .sunrise-theme .btn-secondary, .sunrise-theme .btn-action, .sunrise-theme .dropdown, .sunrise-theme .history-item { background-color: rgba(255, 255, 255, 0.4); border-color: rgba(133, 77, 14, 0.2); color: #422006; }
+        .sunrise-theme .btn-action { background-color: #854D0E; color: white; }
+        .sunrise-theme .btn-action:hover { background-color: #78350F; }
+        .sunrise-theme .stats-value.positive, .sunrise-theme .profit-positive { color: #F97316; }
+        .sunrise-theme .stats-value.negative, .sunrise-theme .profit-negative { color: #581C87; }
+        .sunrise-theme .icon-btn { color: #78350F; }
+        .sunrise-theme .icon-btn:hover { color: #422006; }
+        .sunrise-theme .score-glow-positive { text-shadow: 0 0 15px rgba(249, 115, 22, 0.5); }
+        .sunrise-theme .score-glow-negative { text-shadow: 0 0 15px rgba(88, 28, 135, 0.5); }
+        .sunrise-theme .form-input { background-color: rgba(255, 255, 255, 0.5); border: 1px solid rgba(133, 77, 14, 0.3); color: #422006; }
+        .sunrise-theme .form-input::placeholder { color: #854D0E; }
+        .sunrise-theme .ring-track { stroke: rgba(133, 77, 14, 0.2); }
+        .sunrise-theme .ring-wins { stroke: #F97316; }
+        .sunrise-theme .ring-losses { stroke: #581C87; }
+        .sunrise-theme .data-ring-text { color: #422006; }
+        .sunrise-theme .stats-card { background-color: rgba(255, 255, 255, 0.5); }
+
+        /* --- Cyberpunk Theme --- */
+        .cyberpunk-theme { background: linear-gradient(to top, #2D0B5A, #0C1445); color: #A5F3FC; font-family: 'Orbitron', sans-serif; }
+        .cyberpunk-theme .main-container { background-color: rgba(10, 10, 25, 0.5); backdrop-filter: blur(12px); border: 2px solid #F472B6; box-shadow: 0 0 15px rgba(244, 114, 182, 0.5); }
+        .cyberpunk-theme .header-text, .cyberpunk-theme .score-text { color: #22D3EE; }
+        .cyberpunk-theme .sub-text { color: #A5F3FC; }
+        .cyberpunk-theme .btn-positive { background-color: #22D3EE; color: #0C1445; border-color: #22D3EE; }
+        .cyberpunk-theme .btn-positive:hover { background-color: #A5F3FC; }
+        .cyberpunk-theme .btn-negative { background-color: #F472B6; color: white; border-color: #F472B6; }
+        .cyberpunk-theme .btn-negative:hover { background-color: #EC4899; }
+        .cyberpunk-theme .btn-neutral { background-color: #A3E635; color: #0C1445; border-color: #A3E635; }
+        .cyberpunk-theme .btn-neutral:hover { background-color: #BEF264; }
+        .cyberpunk-theme .btn-secondary, .cyberpunk-theme .btn-action, .cyberpunk-theme .dropdown, .cyberpunk-theme .history-item { background-color: rgba(10, 10, 25, 0.7); border-color: #22D3EE; color: #A5F3FC; }
+        .cyberpunk-theme .btn-action { background-color: #A3E635; color: #0C1445; }
+        .cyberpunk-theme .btn-action:hover { background-color: #BEF264; }
+        .cyberpunk-theme .stats-value.positive, .cyberpunk-theme .profit-positive { color: #22D3EE; }
+        .cyberpunk-theme .stats-value.negative, .cyberpunk-theme .profit-negative { color: #F472B6; }
+        .cyberpunk-theme .icon-btn { color: #A5F3FC; }
+        .cyberpunk-theme .icon-btn:hover { color: #fff; }
+        .cyberpunk-theme .score-glow-positive { text-shadow: 0 0 15px rgba(34, 211, 238, 0.7); }
+        .cyberpunk-theme .score-glow-negative { text-shadow: 0 0 15px rgba(244, 114, 182, 0.7); }
+        .cyberpunk-theme .form-input { background-color: rgba(10, 10, 25, 0.8); border: 1px solid #22D3EE; color: #A5F3FC; }
+        .cyberpunk-theme .form-input::placeholder { color: #67E8F9; }
+        .cyberpunk-theme .ring-track { stroke: rgba(34, 211, 238, 0.3); }
+        .cyberpunk-theme .ring-wins { stroke: #22D3EE; }
+        .cyberpunk-theme .ring-losses { stroke: #F472B6; }
+        .cyberpunk-theme .data-ring-text { color: #A5F3FC; }
+        .cyberpunk-theme .stats-card { background-color: rgba(10, 10, 25, 0.8); border: 1px solid #22D3EE; }
+
+        /* --- Forest Theme --- */
+        .forest-theme { background: linear-gradient(to top, #1E2A2A, #07373E); color: #EAE7E2; font-family: 'Nunito', sans-serif; }
+        .forest-theme .main-container { background-color: rgba(20, 40, 35, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(110, 231, 183, 0.2); }
+        .forest-theme .header-text, .forest-theme .score-text { color: #EAE7E2; }
+        .forest-theme .sub-text { color: #A3B1A9; }
+        .forest-theme .btn-positive { background-color: #6EE7B7; color: #07373E; }
+        .forest-theme .btn-positive:hover { background-color: #A7F3D0; }
+        .forest-theme .btn-negative { background-color: #E57373; color: white; }
+        .forest-theme .btn-negative:hover { background-color: #EF5350; }
+        .forest-theme .btn-neutral { background-color: #8D6E63; color: white; }
+        .forest-theme .btn-neutral:hover { background-color: #A1887F; }
+        .forest-theme .btn-secondary, .forest-theme .btn-action, .forest-theme .dropdown, .forest-theme .history-item { background-color: rgba(20, 40, 35, 0.8); border-color: rgba(163, 177, 169, 0.4); color: #EAE7E2; }
+        .forest-theme .btn-action { background-color: #8D6E63; color: white; }
+        .forest-theme .btn-action:hover { background-color: #A1887F; }
+        .forest-theme .stats-value.positive, .forest-theme .profit-positive { color: #6EE7B7; }
+        .forest-theme .stats-value.negative, .forest-theme .profit-negative { color: #E57373; }
+        .forest-theme .icon-btn { color: #A3B1A9; }
+        .forest-theme .icon-btn:hover { color: #EAE7E2; }
+        .forest-theme .score-glow-positive { text-shadow: 0 0 15px rgba(110, 231, 183, 0.5); }
+        .forest-theme .score-glow-negative { text-shadow: 0 0 15px rgba(229, 115, 115, 0.5); }
+        .forest-theme .form-input { background-color: rgba(20, 40, 35, 0.8); border: 1px solid #A3B1A9; color: #EAE7E2; }
+        .forest-theme .form-input::placeholder { color: #A3B1A9; }
+        .forest-theme .ring-track { stroke: rgba(163, 177, 169, 0.3); }
+        .forest-theme .ring-wins { stroke: #6EE7B7; }
+        .forest-theme .ring-losses { stroke: #E57373; }
+        .forest-theme .data-ring-text { color: #EAE7E2; }
+        .forest-theme .stats-card { background-color: rgba(20, 40, 35, 0.8); }
+
+        /* --- Crimson Theme --- */
+        .crimson-theme { background: linear-gradient(to top, #121212, #1C1C1C); color: #F5F5F5; font-family: 'Playfair Display', serif; }
+        .crimson-theme .main-container { background-color: rgba(40, 10, 15, 0.6); backdrop-filter: blur(10px); border: 2px solid #DC2626; }
+        .crimson-theme .header-text, .crimson-theme .score-text { color: #F5F5F5; }
+        .crimson-theme .sub-text { color: #D4AF37; }
+        .crimson-theme .btn-positive { background-color: #B91C1C; color: white; }
+        .crimson-theme .btn-positive:hover { background-color: #991B1B; }
+        .crimson-theme .btn-negative { background-color: #4B5563; color: white; }
+        .crimson-theme .btn-negative:hover { background-color: #374151; }
+        .crimson-theme .btn-neutral { background-color: #D4AF37; color: #1C1C1C; }
+        .crimson-theme .btn-neutral:hover { background-color: #ca9f22; }
+        .crimson-theme .btn-secondary, .crimson-theme .btn-action, .crimson-theme .dropdown, .crimson-theme .history-item { background-color: rgba(28, 28, 28, 0.8); border-color: rgba(212, 175, 55, 0.4); color: #F5F5F5; }
+        .crimson-theme .btn-action { background-color: #D4AF37; color: #1C1C1C; }
+        .crimson-theme .btn-action:hover { background-color: #ca9f22; }
+        .crimson-theme .stats-value.positive, .crimson-theme .profit-positive { color: #B91C1C; }
+        .crimson-theme .stats-value.negative, .crimson-theme .profit-negative { color: #9CA3AF; }
+        .crimson-theme .icon-btn { color: #D4AF37; }
+        .crimson-theme .icon-btn:hover { color: #F5F5F5; }
+        .crimson-theme .score-glow-positive { text-shadow: 0 0 15px rgba(185, 28, 28, 0.6); }
+        .crimson-theme .score-glow-negative { text-shadow: 0 0 15px rgba(156, 163, 175, 0.5); }
+        .crimson-theme .form-input { background-color: rgba(28, 28, 28, 0.8); border: 1px solid #D4AF37; color: #F5F5F5; }
+        .crimson-theme .form-input::placeholder { color: #D4AF37; }
+        .crimson-theme .ring-track { stroke: rgba(212, 175, 55, 0.3); }
+        .crimson-theme .ring-wins { stroke: #B91C1C; }
+        .crimson-theme .ring-losses { stroke: #4B5563; }
+        .crimson-theme .data-ring-text { color: #F5F5F5; }
+        .crimson-theme .stats-card { background-color: rgba(28, 28, 28, 0.8); }
+
+        /* --- Blueprint Theme --- */
+        .blueprint-theme { background: #0A2240; color: #FFFFFF; font-family: 'Roboto Mono', monospace; }
+        .blueprint-theme .main-container { background-color: rgba(5, 20, 45, 0.6); backdrop-filter: blur(8px); border: 2px solid #7DD3FC; }
+        .blueprint-theme .header-text, .blueprint-theme .score-text { color: #FFFFFF; }
+        .blueprint-theme .sub-text { color: #7DD3FC; }
+        .blueprint-theme .btn-positive { background-color: #4ADE80; color: #0A2240; }
+        .blueprint-theme .btn-positive:hover { background-color: #36D399; }
+        .blueprint-theme .btn-negative { background-color: #FACC15; color: #0A2240; }
+        .blueprint-theme .btn-negative:hover { background-color: #EAB308; }
+        .blueprint-theme .btn-neutral { background-color: #FFFFFF; color: #0A2240; }
+        .blueprint-theme .btn-neutral:hover { background-color: #E5E7EB; }
+        .blueprint-theme .btn-secondary, .blueprint-theme .btn-action, .blueprint-theme .dropdown, .blueprint-theme .history-item { background-color: rgba(5, 20, 45, 0.8); border-color: #7DD3FC; color: #FFFFFF; }
+        .blueprint-theme .btn-action { background-color: #FFFFFF; color: #0A2240; }
+        .blueprint-theme .btn-action:hover { background-color: #E5E7EB; }
+        .blueprint-theme .stats-value.positive, .blueprint-theme .profit-positive { color: #4ADE80; }
+        .blueprint-theme .stats-value.negative, .blueprint-theme .profit-negative { color: #FACC15; }
+        .blueprint-theme .icon-btn { color: #7DD3FC; }
+        .blueprint-theme .icon-btn:hover { color: #FFFFFF; }
+        .blueprint-theme .score-glow-positive { text-shadow: 0 0 15px rgba(74, 222, 128, 0.6); }
+        .blueprint-theme .score-glow-negative { text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
+        .blueprint-theme .form-input { background-color: rgba(5, 20, 45, 0.8); border: 1px solid #7DD3FC; color: #FFFFFF; }
+        .blueprint-theme .form-input::placeholder { color: #7DD3FC; }
+        .blueprint-theme .ring-track { stroke: rgba(125, 211, 252, 0.3); }
+        .blueprint-theme .ring-wins { stroke: #4ADE80; }
+        .blueprint-theme .ring-losses { stroke: #FACC15; }
+        .blueprint-theme .data-ring-text { color: #FFFFFF; }
+        .blueprint-theme .stats-card { background-color: rgba(5, 20, 45, 0.8); }
+    </style>
+</head>
+<body class="dark-theme app-body">
+
+    <div class="main-container">
+        <!-- Main View -->
+        <div id="main-view" class="view active">
+            <!-- Header -->
+            <header class="flex justify-between items-center h-20 flex-shrink-0">
+                <button id="theme-switcher" class="icon-btn">
+                    <!-- Theme Icon will be injected here by JS -->
+                </button>
+                <div class="data-ring-container" id="data-ring">
+                    <svg class="data-ring-svg" viewBox="0 0 36 36">
+                        <path class="data-ring-circle ring-track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+                        <path id="ring-losses" class="data-ring-circle ring-losses" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+                        <path id="ring-wins" class="data-ring-circle ring-wins" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+                    </svg>
+                    <div class="data-ring-text">
+                        <div class="data-ring-total">
+                            <span class="value" id="trades-tracker">0</span>
+                        </div>
+                        <div class="data-ring-details">
+                             <div class="flex flex-col items-center">
+                                 <span class="profit-value" id="live-profit-detail"></span>
+                                 <div class="flex space-x-2 mt-1">
+                                     <span class="wl-value" id="wins-tracker-detail">W: 0</span>
+                                     <span class="wl-value" id="losses-tracker-detail">L: 0</span>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+    
+            <!-- Main Score Display -->
+            <div class="text-center my-8 flex flex-col justify-center">
+                <h2 class="text-8xl font-bold score-text transition-shadow duration-300" id="main-score">0.0</h2>
+            </div>
+    
+            <!-- Action Buttons and Logs -->
+            <div class="mt-auto">
+                <!-- Template Selector -->
+                <div class="flex items-center justify-center space-x-2 mb-6">
+                    <select id="template-selector" class="dropdown rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                    <button id="calc-btn" title="Calculator" class="icon-btn btn btn-secondary !p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/><path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/></svg>
+                    </button>
+                     <button id="edit-templates-btn" class="btn btn-secondary text-sm !py-2 !px-3">Edit</button>
+                </div>
+        
+                <!-- Buttons Grid -->
+                <div id="buttons-container" class="grid grid-cols-3 gap-4"></div>
+                
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-3 gap-4 pt-6 mt-6 border-t border-gray-700">
+                      <button id="undo-btn" class="btn btn-secondary col-span-1 flex justify-center items-center"></button>
+                      <button id="history-btn" class="btn btn-secondary col-span-1 flex justify-center items-center"></button>
+                      <button id="reset-btn" class="btn btn-secondary col-span-1 flex justify-center items-center"></button>
+                </div>
+                
+                <!-- Save Button -->
+                <div class="pt-4">
+                      <button id="save-btn" class="btn btn-action w-full">Save Session</button>
+                </div>
+    
+                <!-- Saved Sessions Log (Toggled) -->
+                <div id="saved-sessions-container" class="pt-4 space-y-2 hidden">
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                        <h3 class="text-lg font-semibold header-text">Saved Sessions</h3>
+                        <div class="flex items-center space-x-3">
+                            <button id="export-all-btn" title="Export All Sessions" class="icon-btn"></button>
+                            <button id="wipe-btn" title="Wipe All Sessions" class="icon-btn"></button>
+                        </div>
+                    </div>
+                    <div id="sessions-log" class="text-sm space-y-2 max-h-48 overflow-y-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Templates View -->
+        <div id="edit-templates-view" class="view">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-xl font-bold">Edit Templates</h3>
+                <button type="button" class="icon-btn close-view-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                </button>
+            </div>
+            <div class="space-y-4 overflow-y-auto -mr-4 pr-4">
+                <div><label for="template-edit-selector" class="text-sm">Select Template to Edit:</label><select id="template-edit-selector" class="form-input"></select></div>
+                <div><label for="template-name-input" class="text-sm">Template Name:</label><input type="text" id="template-name-input" class="form-input"></div>
+                <div class="grid grid-cols-2 gap-4"><div><label for="instrument-selector" class="text-sm">Instrument</label><select id="instrument-selector" class="form-input"><option value="MES">MES</option><option value="ES">ES</option><option value="MNQ">MNQ</option><option value="NQ">NQ</option></select></div><div><label class="text-sm">Point Value</label><span id="point-value-display" class="form-input bg-gray-700/50 flex items-center justify-center font-semibold"></span></div></div>
+                <div><label for="commission-input" class="text-sm">Commission ($ per trade)</label><input type="number" id="commission-input" class="form-input" placeholder="e.g., 1.24"></div>
+                <div><label for="positive-buttons-input" class="text-sm">Positive Buttons (comma separated):</label><input type="text" id="positive-buttons-input" class="form-input"></div>
+                <div><label for="negative-buttons-input" class="text-sm">Negative Buttons (comma separated):</label><input type="text" id="negative-buttons-input" class="form-input"></div>
+                <div class="flex justify-between items-center pt-4"><button id="delete-template-btn" class="btn bg-red-600 text-white text-xs px-3 py-2">Delete</button><div class="space-x-2"><button type="button" class="btn btn-secondary close-view-btn">Close</button><button id="save-template-btn" class="btn btn-action">Save</button></div></div>
+            </div>
+        </div>
+
+        <!-- Other Views -->
+        <div id="reset-view" class="view justify-center text-center">
+            <div>
+                <h3 class="text-xl font-bold">Are you sure?</h3>
+                <p class="text-sm sub-text my-4">This will reset the current session.</p>
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button type="button" class="btn btn-secondary close-view-btn">Cancel</button>
+                    <button id="confirm-reset-btn" class="btn btn-negative px-4 py-2">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="calc-view" class="view">
+             <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-xl font-bold">Edit Calculation</h3>
+                <button type="button" class="icon-btn close-view-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                </button>
+            </div>
+            <p class="text-sm sub-text mb-2">Separate values with a space.</p>
+            <textarea id="calc-input" class="form-input h-24 flex-grow"></textarea>
+            <div class="flex justify-end space-x-2 mt-4"><button type="button" class="btn btn-secondary close-view-btn">Cancel</button><button id="update-calc-btn" class="btn btn-action">Update</button></div>
+        </div>
+
+        <div id="save-view" class="view">
+             <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-xl font-bold">Save Session</h3>
+                <button type="button" class="icon-btn close-view-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div><label for="save-note" class="text-sm font-medium">Note</label><input type="text" id="save-note" class="form-input" placeholder="e.g., London Session"></div>
+                <div><label for="save-date" class="text-sm font-medium">Date</label><input type="date" id="save-date" class="form-input"></div>
+                <div><label class="text-sm font-medium">Session Time</label><select id="session-time-selector" class="form-input"><option value="8:30 - 12:30">8:30 - 12:30</option><option value="9:00 - 12:30">9:00 - 12:30</option><option value="9:30-12:30">9:30-12:30</option><option value="12:30-14:50">12:30-14:50</option><option value="Custom">Custom</option></select></div>
+                <div id="custom-time-inputs" class="hidden grid grid-cols-2 gap-2"><div><label for="start-time" class="text-xs">Start</label><input type="time" id="start-time" class="form-input"></div><div><label for="end-time" class="text-xs">End</label><input type="time" id="end-time" class="form-input"></div></div>
+                <div class="flex justify-end space-x-2 mt-4"><button type="button" class="btn btn-secondary close-view-btn">Cancel</button><button id="confirm-save-btn" class="btn btn-action">Save</button></div>
+            </div>
+        </div>
+        
+        <!-- Stats View -->
+        <div id="stats-view" class="view">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h3 class="text-xl font-bold">Session Statistics</h3>
+                <button type="button" class="icon-btn close-view-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                </button>
+            </div>
+            <div id="stats-content" class="space-y-3 overflow-y-auto -mr-4 pr-4"></div>
+        </div>
+
+        <!-- Theme Selector View -->
+        <div id="theme-view" class="view">
+            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                <h3 class="text-xl font-bold header-text">Select a Theme</h3>
+                <button type="button" class="icon-btn close-view-btn">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <button class="theme-option-btn" data-theme="dark-theme">
+                    <span class="font-semibold">Dark</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-gray-600" style="background: linear-gradient(to top, #000000, #111111);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="ice-theme">
+                    <span class="font-semibold">Ice</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-gray-200" style="background: linear-gradient(to top, #f3e5f5, #e0f7fa);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="sunrise-theme">
+                    <span class="font-semibold">Sunrise</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-purple-200" style="background: linear-gradient(to top, #D8B4FE, #FDE68A);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="cyberpunk-theme">
+                    <span class="font-semibold">Cyberpunk</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-pink-400" style="background: linear-gradient(to top, #2D0B5A, #0C1445);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="forest-theme">
+                    <span class="font-semibold">Forest</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-green-900" style="background: linear-gradient(to top, #1E2A2A, #07373E);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="crimson-theme">
+                    <span class="font-semibold">Crimson</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-red-500" style="background: linear-gradient(to top, #121212, #1C1C1C);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="blueprint-theme">
+                    <span class="font-semibold">Blueprint</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-cyan-300" style="background-color: #0A2240;"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Delete Session Confirmation View -->
+        <div id="delete-session-view" class="view justify-center text-center">
+            <div>
+                <h3 class="text-xl font-bold">Delete Session?</h3>
+                <p class="text-sm sub-text my-4">Are you sure you want to delete this session? This action cannot be undone.</p>
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button type="button" class="btn btn-secondary close-view-btn">Cancel</button>
+                    <button id="confirm-delete-session-btn" class="btn btn-negative px-4 py-2">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Template Confirmation View -->
+        <div id="delete-template-view" class="view justify-center text-center">
+            <div>
+                <h3 class="text-xl font-bold">Delete Template?</h3>
+                <p class="text-sm sub-text my-4">Are you sure you want to delete this template? This action cannot be undone.</p>
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button type="button" class="btn btn-secondary close-view-btn">Cancel</button>
+                    <button id="confirm-delete-template-btn" class="btn btn-negative px-4 py-2">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wipe All Confirmation View -->
+        <div id="wipe-all-view" class="view justify-center text-center">
+            <div>
+                <h3 class="text-xl font-bold">Wipe All Sessions?</h3>
+                <p class="text-sm sub-text my-4">This is irreversible and will delete all your saved trading sessions.</p>
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button type="button" class="btn btn-secondary close-view-btn">Cancel</button>
+                    <button id="confirm-wipe-btn" class="btn btn-negative px-4 py-2">Wipe All</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="status-bar" class="text-xs text-center p-2 sub-text mt-auto"></div>
+    </div>
+    
+    <!-- Firebase SDKs (Modular Version) -->
+    <script type="module">
+        // Import functions from the Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDocs, onSnapshot, setDoc, addDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.myTradingAppInitialized) {
+                return;
+            }
+            window.myTradingAppInitialized = true;
+
+            // --- FIREBASE CONFIG (Using provided variables) ---
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                apiKey: "AIzaSyAjtH-8qhMjQCgNfwq8xO90gu8cHA9dQeA",
+                authDomain: "modern-tracker.firebaseapp.com",
+                projectId: "modern-tracker",
+                storageBucket: "modern-tracker.appspot.com",
+                messagingSenderId: "830990577812",
+                appId: "1:830990577812:web:624ccd2c304b6385844481"
+            };
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-trading-tracker';
+
+            // --- GLOBAL STATE & DOM ELEMENTS ---
+            let score = 0.0, wins = 0, losses = 0, totalTrades = 0, maxWin = 0, maxLoss = 0;
+            let history = [], templates = {}, savedSessionsData = [];
+            let userId = null, sessionToDeleteId = null, templateToDeleteName = null;
+            let db, auth; // Make db and auth accessible in the broader scope
+
+            const mainScoreEl = document.getElementById('main-score');
+            const winsTrackerDetailEl = document.getElementById('wins-tracker-detail');
+            const lossesTrackerDetailEl = document.getElementById('losses-tracker-detail');
+            const tradesTrackerEl = document.getElementById('trades-tracker');
+            const buttonsContainer = document.getElementById('buttons-container');
+            const templateSelector = document.getElementById('template-selector');
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const dataRingContainer = document.getElementById('data-ring');
+            const ringWinsEl = document.getElementById('ring-wins');
+            const ringLossesEl = document.getElementById('ring-losses');
+            const liveProfitDetailEl = document.getElementById('live-profit-detail');
+            const statusBar = document.getElementById('status-bar');
+
+            const paletteIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm4 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM5.5 7a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm.5 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/><path d="M16 8c0 3.15-1.866 5.959-4.573 7.164a.5.5 0 1 1-.457-.894A7.002 7.002 0 0 0 15 8a.5.5 0 0 1 1 0z"/></svg>`;
+            const undoIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>`;
+            const historyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zM11.985 1.795a7.002 7.002 0 0 0-3.582-1.795l.074-.997a8.001 8.001 0 0 1 4.09 2.025l-.71.71A7.001 7.001 0 0 0 11.985 1.795zM4.015 1.795a7.002 7.002 0 0 0-3.582 1.795l.71.71a7.001 7.001 0 0 0 3.582-1.795L4.015 1.795zM1.795 4.015a7.002 7.002 0 0 0-1.795 3.582l.997.074a7.001 7.001 0 0 0 1.795-3.582l-.997-.074zM14.205 4.015a7.002 7.002 0 0 0-1.795-3.582l-.71.71a7.001 7.001 0 0 0 1.795 3.582l.997-.074zM8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/><path d="M8 5.5a.5.5 0 0 1 .5.5v2.5a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5z"/></svg>`;
+            const resetIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>`;
+            const instrumentPointValues = { MES: 5, ES: 50, MNQ: 2, NQ: 20 };
+            
+            const defaultTemplates = { 
+                "ES": { instrument: "ES", pointValue: 50, commission: 4.20, positive: [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5], negative: [-2, -2.5, -3] },
+                "NQ": { instrument: "NQ", pointValue: 20, commission: 4.20, positive: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], negative: [-4, -6, -8, -10] } 
+            };
+
+            // --- UI & CORE LOGIC FUNCTIONS ---
+            const applyTheme = (theme) => {
+                document.body.className = `app-body ${theme}`;
+                localStorage.setItem('plTrackerTheme', theme);
+            };
+            
+            const showView = (viewId) => {
+                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                const viewToShow = document.getElementById(viewId);
+                if (viewToShow) {
+                    viewToShow.classList.add('active');
+                }
+            };
+            
+            const setStatus = (message, type = 'loading') => {
+                if (!statusBar) return;
+                const icons = {
+                    loading: `<svg class="animate-spin h-4 w-4 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`,
+                    success: `<svg class="h-4 w-4 inline-block mr-2 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`,
+                    error: `<svg class="h-4 w-4 inline-block mr-2 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>`
+                };
+                statusBar.innerHTML = `${icons[type]} ${message}`;
+                statusBar.className = `text-xs text-center p-2 mt-auto ${type === 'error' ? 'text-red-400' : 'sub-text'}`;
+
+                if (type !== 'loading') {
+                    setTimeout(() => { statusBar.innerHTML = ''; }, 3000);
+                }
+            };
+            
+            const copyToClipboard = (text) => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    setStatus('Copied to clipboard!', 'success');
+                } catch (err) {
+                    setStatus('Failed to copy.', 'error');
+                }
+                document.body.removeChild(textarea);
+            };
+
+            const animateValue = (element, start, end, duration) => {
+                if (start === end) return;
+                let startTime = null;
+                const step = (currentTime) => {
+                    if (!startTime) startTime = currentTime;
+                    const progress = Math.min((currentTime - startTime) / duration, 1);
+                    const currentValue = start + (end - start) * progress;
+                    element.textContent = currentValue.toFixed(1);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        element.textContent = end.toFixed(1);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+            const updateDataRing = () => {
+                const winP = totalTrades > 0 ? (wins / totalTrades) * 100 : 0;
+                const lossP = totalTrades > 0 ? (losses / totalTrades) * 100 : 0;
+                ringWinsEl.style.strokeDasharray = `${winP} ${100 - winP}`;
+                ringLossesEl.style.strokeDasharray = `${lossP} ${100 - lossP}`;
+                ringLossesEl.style.strokeDashoffset = -winP;
+            };
+            const updateDisplay = (previousScore = score) => {
+                animateValue(mainScoreEl, previousScore, score, 200);
+                mainScoreEl.classList.toggle('score-glow-positive', score > 0);
+                mainScoreEl.classList.toggle('score-glow-negative', score < 0);
+                winsTrackerDetailEl.textContent = `W: ${wins}`;
+                lossesTrackerDetailEl.textContent = `L: ${losses}`;
+                tradesTrackerEl.textContent = totalTrades;
+                
+                const currentTemplate = templates[templateSelector.value];
+                if (totalTrades > 0 && currentTemplate?.pointValue != null && currentTemplate?.commission != null) {
+                    const profit = (score * currentTemplate.pointValue) - (totalTrades * currentTemplate.commission);
+                    liveProfitDetailEl.textContent = `$${profit.toFixed(2)}`;
+                    liveProfitDetailEl.classList.remove('profit-positive', 'profit-negative');
+                    liveProfitDetailEl.classList.add(profit >= 0 ? 'profit-positive' : 'profit-negative');
+                } else {
+                    liveProfitDetailEl.textContent = '';
+                }
+
+                updateDataRing();
+            };
+            const handleButtonClick = (value) => { 
+                const previousScore = score; 
+                history.push({ state: { score, wins, losses, totalTrades, maxWin, maxLoss }, value }); 
+                score += value; 
+                totalTrades++; 
+                if (value > 0) wins++; 
+                else if (value < 0) losses++; 
+
+                const currentTemplate = templates[templateSelector.value];
+                if (currentTemplate) {
+                    const profit = (score * currentTemplate.pointValue) - (totalTrades * currentTemplate.commission);
+                    maxWin = Math.max(maxWin, profit);
+                    maxLoss = Math.min(maxLoss, profit);
+                }
+
+                updateDisplay(previousScore); 
+            };
+            const resetCalculator = () => { const previousScore = score; score = 0.0; wins = 0; losses = 0; totalTrades = 0; history = []; maxWin = 0; maxLoss = 0; updateDisplay(previousScore); };
+            const renderButtons = (templateName) => {
+                const template = templates[templateName];
+                if (!template) return;
+                buttonsContainer.innerHTML = '';
+                const allButtons = [...(template.positive || []).sort((a, b) => a - b), 0, ...(template.negative || []).sort((a, b) => b - a)];
+                allButtons.forEach(val => {
+                    const button = document.createElement('button');
+                    button.textContent = (val > 0 ? '+' : '') + (parseFloat(val) === parseInt(val) ? val : val.toFixed(1));
+                    button.className = `calc-btn ${val > 0 ? 'btn-positive' : val < 0 ? 'btn-negative' : 'btn-neutral'}`;
+                    button.onclick = () => handleButtonClick(val);
+                    buttonsContainer.appendChild(button);
+                });
+            };
+            const populateTemplateSelectors = () => {
+                const currentMainVal = templateSelector.value;
+                const editSelector = document.getElementById('template-edit-selector');
+                templateSelector.innerHTML = '';
+                editSelector.innerHTML = '<option value="" disabled selected>Select or Add New</option><option value="_new">-- Add New Template --</option>';
+                const sortedNames = Object.keys(templates).sort();
+                sortedNames.forEach(name => { const option = new Option(name, name); templateSelector.add(option.cloneNode(true)); editSelector.add(option); });
+                templateSelector.value = templates[currentMainVal] ? currentMainVal : (sortedNames[0] || '');
+                editSelector.value = "";
+            };
+            const formatDate = (isoDate) => { if (!isoDate || typeof isoDate !== 'string' || isoDate.length < 10) return ''; const [y, m, d] = isoDate.split('-'); return `${d}/${m}/${y}`; };
+            
+            // --- FIRESTORE FUNCTIONS (MODULAR) ---
+            const saveTemplateToFirestore = async (name, templateData) => { if (userId && name) await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'templates', name), templateData); };
+            const deleteTemplateFromFirestore = async (name) => { if (userId && name && Object.keys(templates).length > 1) { await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'templates', name)); } else { setStatus("Cannot delete the last template.", "error"); } };
+            const saveSessionToFirestore = async (sessionData) => { if(userId) await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'sessions'), sessionData); };
+            const deleteSession = async (sessionId) => { if (userId && sessionId) await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'sessions', sessionId)); };
+            const wipeAllSessions = async () => {
+                if (!userId) return;
+                const q = query(collection(db, 'artifacts', appId, 'users', userId, 'sessions'));
+                const snapshot = await getDocs(q);
+                await Promise.all(snapshot.docs.map(d => deleteDoc(d.ref)));
+            };
+
+            // --- AUTHENTICATION & DATA LOADING ---
+            async function initializeAndLoadData() {
+                if (!userId) return;
+                setStatus('Loading data...', 'loading');
+                
+                const templatesRef = collection(db, 'artifacts', appId, 'users', userId, 'templates');
+                const sessionsRef = collection(db, 'artifacts', appId, 'users', userId, 'sessions');
+
+                try {
+                    const templateSnapshot = await getDocs(templatesRef);
+                    if (templateSnapshot.empty) {
+                        await Promise.all(Object.entries(defaultTemplates).map(([name, data]) => 
+                            setDoc(doc(templatesRef, name), data)
+                        ));
+                    }
+
+                    onSnapshot(templatesRef, (snapshot) => {
+                        templates = {};
+                        snapshot.forEach(doc => { templates[doc.id] = doc.data(); });
+                        populateTemplateSelectors();
+                        renderButtons(templateSelector.value || Object.keys(templates)[0]);
+                        setStatus('Ready', 'success');
+                    }, (error) => {
+                        console.error("Template listener error:", error);
+                        setStatus('Error loading templates.', 'error');
+                    });
+
+                    onSnapshot(query(sessionsRef), (snapshot) => {
+                        const log = document.getElementById('sessions-log');
+                        log.innerHTML = '';
+                        savedSessionsData = [];
+                        snapshot.forEach(doc => savedSessionsData.push({ id: doc.id, ...doc.data() }));
+                        
+                        savedSessionsData.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(data => {
+                            const el = document.createElement('div');
+                            el.className = 'history-item p-2 rounded-md flex justify-between items-center';
+                            el.innerHTML = `<div class="flex-grow"><div><span class="font-bold">${formatDate(data.date)}</span><span class="text-xs ml-2">${data.sessionTime}</span></div><div class="text-xs mt-1">${data.note}</div><div class="text-right mt-1"><span class="font-bold ${data.score >= 0 ? 'profit-positive' : 'profit-negative'}">${parseFloat(data.score).toFixed(1)}</span><span class="text-xs ml-2">W:${data.wins} L:${data.losses} T:${data.totalTrades}</span></div></div><div class="flex flex-col items-center space-y-2 ml-2"><button title="Show Stats" class="icon-btn stats-btn" data-session-id="${data.id}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-4 0v-3H2v3h2z"/></svg></button><button title="Export to Clipboard" class="icon-btn export-btn" data-session-id="${data.id}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zM-1 8a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H-.5a.5.5 0 0 1-.5-.5z"/></svg></button><button title="Delete Session" class="icon-btn delete-btn" data-session-id="${data.id}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg></button></div>`;
+                            log.appendChild(el);
+                        });
+                    }, (error) => {
+                        console.error("Session listener error:", error);
+                        setStatus('Error loading sessions.', 'error');
+                    });
+                } catch (error) {
+                    console.error("Error setting up listeners:", error);
+                    setStatus('Error connecting to database.', 'error');
+                }
+            }
+            
+            // --- EVENT LISTENERS ---
+            const setupEventListeners = () => {
+                themeSwitcher.addEventListener('click', () => showView('theme-view'));
+                dataRingContainer.addEventListener('click', () => dataRingContainer.classList.toggle('show-details'));
+                templateSelector.addEventListener('change', (e) => renderButtons(e.target.value));
+                document.getElementById('undo-btn').addEventListener('click', () => { if (history.length > 0) { const lastEntry = history.pop(); const lastState = lastEntry.state; const currentScore = score; score = lastState.score; wins = lastState.wins; losses = lastState.losses; totalTrades = lastState.totalTrades; maxWin = lastState.maxWin; maxLoss = lastState.maxLoss; updateDisplay(currentScore); } });
+                document.getElementById('history-btn').addEventListener('click', () => document.getElementById('saved-sessions-container').classList.toggle('hidden'));
+                
+                // View Openers
+                document.getElementById('edit-templates-btn').addEventListener('click', () => showView('edit-templates-view'));
+                document.getElementById('reset-btn').addEventListener('click', () => showView('reset-view'));
+                document.getElementById('calc-btn').addEventListener('click', () => {
+                    document.getElementById('calc-input').value = history.map(h => h.value).join(' ');
+                    showView('calc-view');
+                });
+                document.getElementById('save-btn').addEventListener('click', () => {
+                    const saveDateInput = document.getElementById('save-date');
+                    if (saveDateInput) {
+                        saveDateInput.valueAsDate = new Date();
+                    }
+                    showView('save-view');
+                });
+                
+                // View Closers
+                document.querySelectorAll('.close-view-btn').forEach(btn => {
+                    btn.addEventListener('click', () => showView('main-view'));
+                });
+                
+                // View Actions
+                document.getElementById('confirm-reset-btn').addEventListener('click', () => { resetCalculator(); showView('main-view'); });
+                document.getElementById('update-calc-btn').addEventListener('click', () => { const values = document.getElementById('calc-input').value.trim().split(' ').map(Number).filter(n => !isNaN(n)); resetCalculator(); history = []; values.forEach(val => handleButtonClick(val)); showView('main-view'); });
+                document.getElementById('save-template-btn').addEventListener('click', async () => { const name = document.getElementById('template-name-input').value.trim(); const instrument = document.getElementById('instrument-selector').value; const pointValue = instrumentPointValues[instrument]; const commission = parseFloat(document.getElementById('commission-input').value); if (!name || !instrument || isNaN(commission)) { setStatus('Template Name, Instrument, and Commission are required.', 'error'); return; } const positive = document.getElementById('positive-buttons-input').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n >= 0); const negative = document.getElementById('negative-buttons-input').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n <= 0); if(!positive.length && !negative.length) { setStatus('At least one positive or negative button value is required.', 'error'); return; } await saveTemplateToFirestore(name, { instrument, pointValue, commission, positive, negative }); showView('main-view'); });
+                document.getElementById('confirm-save-btn').addEventListener('click', async () => { 
+                    const currentTemplate = templates[templateSelector.value];
+                    if (!currentTemplate) { setStatus("Please select a valid template.", "error"); return; }
+                    let sessionTime = document.getElementById('session-time-selector').value; 
+                    if (sessionTime === 'Custom') { const start = document.getElementById('start-time').value; const end = document.getElementById('end-time').value; sessionTime = (start && end) ? `${start}-${end}` : 'Custom'; } 
+                    const saveDateInput = document.getElementById('save-date');
+                    if (!saveDateInput.value) { setStatus("Please select a date to save the session.", "error"); return; }
+                    await saveSessionToFirestore({ note: document.getElementById('save-note').value || 'No note', date: saveDateInput.value, sessionTime, score, wins, losses, totalTrades, instrument: currentTemplate.instrument, pointValue: currentTemplate.pointValue, commission: currentTemplate.commission, maxWin, maxLoss }); 
+                    showView('main-view');
+                });
+
+                // --- EVENT LISTENERS FOR TEMPLATES & SESSIONS ---
+
+                // Theme selection
+                document.getElementById('theme-view').addEventListener('click', (e) => {
+                    const button = e.target.closest('.theme-option-btn');
+                    if (button) {
+                        const theme = button.dataset.theme;
+                        applyTheme(theme);
+                        showView('main-view');
+                    }
+                });
+
+                // Edit Template Listeners
+                const templateEditSelector = document.getElementById('template-edit-selector');
+                const templateNameInput = document.getElementById('template-name-input');
+                const instrumentSelectorEdit = document.getElementById('instrument-selector');
+                const pointValueDisplay = document.getElementById('point-value-display');
+                const commissionInput = document.getElementById('commission-input');
+                const positiveButtonsInput = document.getElementById('positive-buttons-input');
+                const negativeButtonsInput = document.getElementById('negative-buttons-input');
+                const deleteTemplateBtn = document.getElementById('delete-template-btn');
+
+                instrumentSelectorEdit.addEventListener('change', () => {
+                    pointValueDisplay.textContent = instrumentPointValues[instrumentSelectorEdit.value] || '';
+                });
+
+                templateEditSelector.addEventListener('change', () => {
+                    const templateName = templateEditSelector.value;
+                    if (templateName === '_new') {
+                        templateNameInput.value = '';
+                        instrumentSelectorEdit.value = 'ES';
+                        commissionInput.value = '';
+                        positiveButtonsInput.value = '';
+                        negativeButtonsInput.value = '';
+                        deleteTemplateBtn.classList.add('hidden');
+                    } else {
+                        const template = templates[templateName];
+                        if (template) {
+                            templateNameInput.value = templateName;
+                            instrumentSelectorEdit.value = template.instrument;
+                            commissionInput.value = template.commission;
+                            positiveButtonsInput.value = (template.positive || []).join(', ');
+                            negativeButtonsInput.value = (template.negative || []).join(', ');
+                            deleteTemplateBtn.classList.remove('hidden');
+                        }
+                    }
+                    instrumentSelectorEdit.dispatchEvent(new Event('change'));
+                });
+                
+                deleteTemplateBtn.addEventListener('click', () => {
+                    templateToDeleteName = templateNameInput.value;
+                    if (templateToDeleteName) {
+                        showView('delete-template-view');
+                    }
+                });
+
+                document.getElementById('confirm-delete-template-btn').addEventListener('click', async () => {
+                    if (templateToDeleteName) {
+                        await deleteTemplateFromFirestore(templateToDeleteName);
+                        templateToDeleteName = null;
+                        showView('main-view');
+                        setStatus('Template deleted.', 'success');
+                    }
+                });
+
+                // Event delegation for session item buttons
+                document.getElementById('sessions-log').addEventListener('click', (e) => {
+                    const button = e.target.closest('.icon-btn');
+                    if (!button) return;
+
+                    const sessionId = button.dataset.sessionId;
+                    const session = savedSessionsData.find(s => s.id === sessionId);
+
+                    if (button.classList.contains('delete-btn')) {
+                        sessionToDeleteId = sessionId;
+                        showView('delete-session-view');
+                    } else if (button.classList.contains('export-btn')) {
+                        if (session) {
+                             const row = [
+                                formatDate(session.date),
+                                session.score.toFixed(1),
+                                session.wins,
+                                session.losses,
+                                session.totalTrades,
+                                `$${(session.maxLoss || 0).toFixed(2)}`,
+                                session.sessionTime,
+                                session.note
+                            ].join('\t');
+                            copyToClipboard(row);
+                        }
+                    } else if (button.classList.contains('stats-btn')) {
+                        if (session) {
+                            const profit = (session.score * session.pointValue) - (session.totalTrades * session.commission);
+                            const winRate = session.totalTrades > 0 ? ((session.wins / session.totalTrades) * 100).toFixed(1) : '0.0';
+                            const statsContent = document.getElementById('stats-content');
+                            statsContent.innerHTML = `
+                                <div class="stats-card p-4 rounded-lg">
+                                    <div class="grid grid-cols-2 gap-4 text-center">
+                                        <div><div class="stats-label">Date</div><div class="stats-value">${formatDate(session.date)}</div></div>
+                                        <div><div class="stats-label">Instrument</div><div class="stats-value">${session.instrument}</div></div>
+                                        <div><div class="stats-label">P/L</div><div class="stats-value ${profit >= 0 ? 'positive' : 'negative'}">$${profit.toFixed(2)}</div></div>
+                                        <div><div class="stats-label">Score</div><div class="stats-value">${session.score.toFixed(1)}</div></div>
+                                        <div><div class="stats-label">Win Rate</div><div class="stats-value">${winRate}%</div></div>
+                                        <div><div class="stats-label">Wins</div><div class="stats-value positive">${session.wins}</div></div>
+                                        <div><div class="stats-label">Losses</div><div class="stats-value negative">${session.losses}</div></div>
+                                        <div><div class="stats-label">High P/L</div><div class="stats-value positive">$${(session.maxWin || 0).toFixed(2)}</div></div>
+                                        <div class="col-span-2"><div class="stats-label">Low P/L</div><div class="stats-value negative">$${(session.maxLoss || 0).toFixed(2)}</div></div>
+                                    </div>
+                                </div>
+                            `;
+                            showView('stats-view');
+                        }
+                    }
+                });
+
+                document.getElementById('confirm-delete-session-btn').addEventListener('click', async () => {
+                    if (sessionToDeleteId) {
+                        await deleteSession(sessionToDeleteId);
+                        sessionToDeleteId = null;
+                        showView('main-view');
+                        setStatus('Session deleted.', 'success');
+                    }
+                });
+
+                // Export All Sessions
+                document.getElementById('export-all-btn').addEventListener('click', () => {
+                    if (savedSessionsData.length === 0) {
+                        setStatus('No sessions to export.', 'error');
+                        return;
+                    }
+                    const allSessionsRows = savedSessionsData.map(session => {
+                        return [
+                            formatDate(session.date),
+                            session.score.toFixed(1),
+                            session.wins,
+                            session.losses,
+                            session.totalTrades,
+                            `$${(session.maxLoss || 0).toFixed(2)}`,
+                            session.sessionTime,
+                            session.note
+                        ].join('\t');
+                    });
+                    const allSessionsText = allSessionsRows.join('\n');
+                    copyToClipboard(allSessionsText);
+                });
+
+                // Wipe All Sessions
+                document.getElementById('wipe-btn').addEventListener('click', () => {
+                    showView('wipe-all-view');
+                });
+                
+                document.getElementById('confirm-wipe-btn').addEventListener('click', async () => {
+                    await wipeAllSessions();
+                    showView('main-view');
+                    setStatus('All sessions wiped.', 'success');
+                });
+                
+                // Set initial icons
+                document.getElementById('theme-switcher').innerHTML = paletteIcon;
+                document.getElementById('undo-btn').innerHTML = undoIcon;
+                document.getElementById('history-btn').innerHTML = historyIcon;
+                document.getElementById('reset-btn').innerHTML = resetIcon;
+                document.getElementById('export-all-btn').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>`;
+                document.getElementById('wipe-btn').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="text-red-500 hover:text-red-400" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>`;
+            };
+            
+            // --- INITIALIZATION ---
+            setStatus('Connecting...');
+            try {
+                // If there's no apiKey in the config object, it means the user hasn't added their config.
+                if (Object.keys(firebaseConfig).length === 0 && typeof __firebase_config === 'undefined') {
+                    throw new Error("Firebase config is missing. Please add your Firebase configuration object to the script.");
+                }
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setStatus('Authenticating...', 'loading');
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        if (!userId) { // Prevents re-initialization on token refresh
+                            userId = user.uid;
+                            await initializeAndLoadData();
+                        }
+                    } else {
+                        await signInAnonymously(auth).catch(err => {
+                            console.error("Anonymous sign-in failed:", err);
+                            setStatus('Authentication Failed.', 'error');
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                setStatus(error.message, 'error');
+            }
+
+            applyTheme(localStorage.getItem('plTrackerTheme') || 'dark-theme');
+            setupEventListeners();
+        });
+    </script>
+
+</body>
+</html>
