@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
     
     <style>
         /* --- Base Styles --- */
@@ -138,6 +138,8 @@
         .iridescent-theme .theme-option-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
         .nebula-theme .theme-option-btn:hover { background-color: rgba(168, 85, 247, 0.1); }
         .supernova-theme .theme-option-btn:hover { background-color: rgba(250, 204, 21, 0.1); }
+        .nocturne-theme .theme-option-btn:hover { background-color: rgba(72, 209, 204, 0.1); }
+        .obsidian-theme .theme-option-btn:hover { background-color: rgba(229, 229, 229, 0.1); }
 
 
         /* --- Dark Theme (Default) --- */
@@ -531,6 +533,62 @@
         .supernova-theme .ring-losses { stroke: #4F46E5; }
         .supernova-theme .data-ring-text { color: #FFFBEB; }
         .supernova-theme .stats-card { background-color: rgba(20, 20, 20, 0.7); }
+        
+        /* --- Nocturne Theme --- */
+        .nocturne-theme { background: linear-gradient(to top, #191970, #4B0000, #003300); color: #E5E5E5; font-family: 'DM Sans', sans-serif; }
+        .nocturne-theme .main-container { background-color: rgba(10, 10, 10, 0.6); backdrop-filter: blur(14px); border: 2px solid #8B0000; }
+        .nocturne-theme .header-text, .nocturne-theme .score-text { color: #E5E5E5; }
+        .nocturne-theme .sub-text { color: #48D1CC; }
+        .nocturne-theme .btn-positive { background-color: #006400; color: #E5E5E5; }
+        .nocturne-theme .btn-positive:hover { background-color: #008000; }
+        .nocturne-theme .btn-negative { background-color: #8B0000; color: #E5E5E5; }
+        .nocturne-theme .btn-negative:hover { background-color: #A52A2A; }
+        .nocturne-theme .btn-neutral { background-color: #4169E1; color: #E5E5E5; }
+        .nocturne-theme .btn-neutral:hover { background-color: #6495ED; }
+        .nocturne-theme .btn-secondary, .nocturne-theme .btn-action, .nocturne-theme .dropdown, .nocturne-theme .history-item { background-color: rgba(10, 10, 10, 0.8); border-color: rgba(72, 209, 204, 0.4); color: #E5E5E5; }
+        .nocturne-theme .btn-action { background-color: #4169E1; color: #E5E5E5; }
+        .nocturne-theme .btn-action:hover { background-color: #6495ED; }
+        .nocturne-theme .stats-value.positive, .nocturne-theme .profit-positive { color: #006400; }
+        .nocturne-theme .stats-value.negative, .nocturne-theme .profit-negative { color: #8B0000; }
+        .nocturne-theme .icon-btn { color: #48D1CC; }
+        .nocturne-theme .icon-btn:hover { color: #E5E5E5; }
+        .nocturne-theme .score-glow-positive { text-shadow: 0 0 10px #006400; }
+        .nocturne-theme .score-glow-negative { text-shadow: 0 0 10px #8B0000; }
+        .nocturne-theme .form-input { background-color: rgba(10, 10, 10, 0.8); border: 1px solid #48D1CC; color: #E5E5E5; }
+        .nocturne-theme .form-input::placeholder { color: #48D1CC; }
+        .nocturne-theme .ring-track { stroke: rgba(72, 209, 204, 0.3); }
+        .nocturne-theme .ring-wins { stroke: #006400; }
+        .nocturne-theme .ring-losses { stroke: #8B0000; }
+        .nocturne-theme .data-ring-text { color: #E5E5E5; }
+        .nocturne-theme .stats-card { background-color: rgba(10, 10, 10, 0.8); }
+
+        /* --- Obsidian Theme --- */
+        .obsidian-theme { background: radial-gradient(circle, #1F1F1F, #000000); color: #FFFFFF; font-family: 'IBM Plex Mono', monospace; }
+        .obsidian-theme .main-container { background-color: rgba(28, 28, 30, 0.5); backdrop-filter: blur(14px); border: 1px solid #E5E5E5; }
+        .obsidian-theme .header-text, .obsidian-theme .score-text { color: #FFFFFF; }
+        .obsidian-theme .sub-text { color: #A1A1AA; }
+        .obsidian-theme .btn-positive { background-color: #38BDF8; color: #000000; }
+        .obsidian-theme .btn-positive:hover { background-color: #0EA5E9; }
+        .obsidian-theme .btn-negative { background-color: #3F3F46; color: #E5E5E5; }
+        .obsidian-theme .btn-negative:hover { background-color: #52525B; }
+        .obsidian-theme .btn-neutral { background-color: #FFFFFF; color: #000000; }
+        .obsidian-theme .btn-neutral:hover { background-color: #E5E5E5; }
+        .obsidian-theme .btn-secondary, .obsidian-theme .btn-action, .obsidian-theme .dropdown, .obsidian-theme .history-item { background-color: rgba(28, 28, 30, 0.8); border-color: #A1A1AA; color: #FFFFFF; }
+        .obsidian-theme .btn-action { background-color: #FFFFFF; color: #000000; }
+        .obsidian-theme .btn-action:hover { background-color: #E5E5E5; }
+        .obsidian-theme .stats-value.positive, .obsidian-theme .profit-positive { color: #38BDF8; }
+        .obsidian-theme .stats-value.negative, .obsidian-theme .profit-negative { color: #A1A1AA; }
+        .obsidian-theme .icon-btn { color: #A1A1AA; }
+        .obsidian-theme .icon-btn:hover { color: #FFFFFF; }
+        .obsidian-theme .score-glow-positive { text-shadow: 0 0 8px #38BDF8; }
+        .obsidian-theme .score-glow-negative { text-shadow: none; }
+        .obsidian-theme .form-input { background-color: rgba(28, 28, 30, 0.8); border: 1px solid #A1A1AA; color: #FFFFFF; }
+        .obsidian-theme .form-input::placeholder { color: #A1A1AA; }
+        .obsidian-theme .ring-track { stroke: #3F3F46; }
+        .obsidian-theme .ring-wins { stroke: #38BDF8; }
+        .obsidian-theme .ring-losses { stroke: #A1A1AA; }
+        .obsidian-theme .data-ring-text { color: #FFFFFF; }
+        .obsidian-theme .stats-card { background-color: rgba(28, 28, 30, 0.8); }
     </style>
 </head>
 <body class="dark-theme app-body">
@@ -745,6 +803,14 @@
                 <button class="theme-option-btn" data-theme="supernova-theme">
                     <span class="font-semibold">Supernova</span>
                     <div class="w-16 h-8 rounded-full border-2 border-yellow-500" style="background: linear-gradient(45deg, #1E293B, #86198F, #B45309);"></div>
+                </button>
+                 <button class="theme-option-btn" data-theme="nocturne-theme">
+                    <span class="font-semibold">Nocturne</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-red-800" style="background: linear-gradient(to top, #191970, #4B0000, #003300);"></div>
+                </button>
+                 <button class="theme-option-btn" data-theme="obsidian-theme">
+                    <span class="font-semibold">Obsidian</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-gray-400" style="background: radial-gradient(circle, #1F1F1F, #000000);"></div>
                 </button>
             </div>
         </div>
