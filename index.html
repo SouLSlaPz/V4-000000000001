@@ -850,6 +850,18 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Restore Session View -->
+        <div id="restore-session-view" class="view justify-center text-center">
+            <div>
+                <h3 class="text-xl font-bold">Unsaved Session Found</h3>
+                <p class="text-sm sub-text my-4">It looks like you have an unsaved session. Would you like to restore it?</p>
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button id="discard-session-btn" class="btn btn-secondary">Discard</button>
+                    <button id="restore-session-btn" class="btn btn-action px-4 py-2">Restore</button>
+                </div>
+            </div>
+        </div>
 
         <div id="status-bar" class="text-xs text-center p-2 sub-text mt-auto"></div>
     </div>
@@ -859,7 +871,7 @@
         // Import functions from the Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, getDocs, onSnapshot, setDoc, addDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, onSnapshot, setDoc, addDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.myTradingAppInitialized) {
@@ -994,7 +1006,31 @@
 
                 updateDataRing();
             };
-            const handleButtonClick = (value) => { 
+
+            const autoSaveSession = async () => {
+                if (!userId) return;
+                const autoSaveRef = doc(db, 'artifacts', appId, 'users', userId, 'autosave', 'current');
+                const sessionData = {
+                    score,
+                    wins,
+                    losses,
+                    totalTrades,
+                    maxWin,
+                    maxLoss,
+                    history,
+                    template: templateSelector.value,
+                    timestamp: new Date()
+                };
+                await setDoc(autoSaveRef, sessionData);
+            };
+
+            const clearAutoSave = async () => {
+                if (!userId) return;
+                const autoSaveRef = doc(db, 'artifacts', appId, 'users', userId, 'autosave', 'current');
+                await deleteDoc(autoSaveRef);
+            };
+            
+            const handleButtonClick = async (value) => { 
                 const previousScore = score; 
                 history.push({ state: { score, wins, losses, totalTrades, maxWin, maxLoss }, value }); 
                 score += value; 
@@ -1009,9 +1045,21 @@
                     maxLoss = Math.min(maxLoss, profit);
                 }
 
-                updateDisplay(previousScore); 
+                updateDisplay(previousScore);
+                await autoSaveSession();
             };
-            const resetCalculator = () => { const previousScore = score; score = 0.0; wins = 0; losses = 0; totalTrades = 0; history = []; maxWin = 0; maxLoss = 0; updateDisplay(previousScore); };
+            const resetCalculator = async () => { 
+                const previousScore = score; 
+                score = 0.0; 
+                wins = 0; 
+                losses = 0; 
+                totalTrades = 0; 
+                history = []; 
+                maxWin = 0; 
+                maxLoss = 0; 
+                updateDisplay(previousScore); 
+                await clearAutoSave();
+            };
             const renderButtons = (templateName) => {
                 const template = templates[templateName];
                 if (!template) return;
@@ -1056,9 +1104,11 @@
                 
                 const templatesRef = collection(db, 'artifacts', appId, 'users', userId, 'templates');
                 const sessionsRef = collection(db, 'artifacts', appId, 'users', userId, 'sessions');
+                const autoSaveRef = doc(db, 'artifacts', appId, 'users', userId, 'autosave', 'current');
 
                 try {
-                    const templateSnapshot = await getDocs(templatesRef);
+                    const [templateSnapshot, autoSaveSnap] = await Promise.all([getDocs(templatesRef), getDoc(autoSaveRef)]);
+
                     if (templateSnapshot.empty) {
                         await Promise.all(Object.entries(defaultTemplates).map(([name, data]) => 
                             setDoc(doc(templatesRef, name), data)
@@ -1069,7 +1119,33 @@
                         templates = {};
                         snapshot.forEach(doc => { templates[doc.id] = doc.data(); });
                         populateTemplateSelectors();
-                        renderButtons(templateSelector.value || Object.keys(templates)[0]);
+                        
+                        if (autoSaveSnap.exists()) {
+                            const data = autoSaveSnap.data();
+                            document.getElementById('restore-session-btn').onclick = async () => {
+                                score = data.score;
+                                wins = data.wins;
+                                losses = data.losses;
+                                totalTrades = data.totalTrades;
+                                maxWin = data.maxWin;
+                                maxLoss = data.maxLoss;
+                                history = data.history;
+                                templateSelector.value = data.template;
+                                
+                                renderButtons(templateSelector.value);
+                                updateDisplay(0);
+                                await clearAutoSave();
+                                showView('main-view');
+                            };
+                             document.getElementById('discard-session-btn').onclick = async () => {
+                                await clearAutoSave();
+                                renderButtons(templateSelector.value || Object.keys(templates)[0]);
+                                showView('main-view');
+                            };
+                            showView('restore-session-view');
+                        } else {
+                            renderButtons(templateSelector.value || Object.keys(templates)[0]);
+                        }
                         setStatus('Ready', 'success');
                     }, (error) => {
                         console.error("Template listener error:", error);
@@ -1103,7 +1179,21 @@
                 themeSwitcher.addEventListener('click', () => showView('theme-view'));
                 dataRingContainer.addEventListener('click', () => dataRingContainer.classList.toggle('show-details'));
                 templateSelector.addEventListener('change', (e) => renderButtons(e.target.value));
-                document.getElementById('undo-btn').addEventListener('click', () => { if (history.length > 0) { const lastEntry = history.pop(); const lastState = lastEntry.state; const currentScore = score; score = lastState.score; wins = lastState.wins; losses = lastState.losses; totalTrades = lastState.totalTrades; maxWin = lastState.maxWin; maxLoss = lastState.maxLoss; updateDisplay(currentScore); } });
+                document.getElementById('undo-btn').addEventListener('click', async () => { 
+                    if (history.length > 0) { 
+                        const lastEntry = history.pop(); 
+                        const lastState = lastEntry.state; 
+                        const currentScore = score; 
+                        score = lastState.score; 
+                        wins = lastState.wins; 
+                        losses = lastState.losses; 
+                        totalTrades = lastState.totalTrades; 
+                        maxWin = lastState.maxWin; 
+                        maxLoss = lastState.maxLoss; 
+                        updateDisplay(currentScore); 
+                        await autoSaveSession();
+                    } 
+                });
                 document.getElementById('history-btn').addEventListener('click', () => document.getElementById('saved-sessions-container').classList.toggle('hidden'));
                 
                 // View Openers
@@ -1127,8 +1217,18 @@
                 });
                 
                 // View Actions
-                document.getElementById('confirm-reset-btn').addEventListener('click', () => { resetCalculator(); showView('main-view'); });
-                document.getElementById('update-calc-btn').addEventListener('click', () => { const values = document.getElementById('calc-input').value.trim().split(' ').map(Number).filter(n => !isNaN(n)); resetCalculator(); history = []; values.forEach(val => handleButtonClick(val)); showView('main-view'); });
+                document.getElementById('confirm-reset-btn').addEventListener('click', async () => { 
+                    await resetCalculator(); 
+                    showView('main-view'); 
+                });
+                document.getElementById('update-calc-btn').addEventListener('click', async () => { 
+                    const values = document.getElementById('calc-input').value.trim().split(' ').map(Number).filter(n => !isNaN(n)); 
+                    await resetCalculator(); 
+                    for (const val of values) {
+                        await handleButtonClick(val);
+                    }
+                    showView('main-view'); 
+                });
                 document.getElementById('save-template-btn').addEventListener('click', async () => { const name = document.getElementById('template-name-input').value.trim(); const instrument = document.getElementById('instrument-selector').value; const pointValue = instrumentPointValues[instrument]; const commission = parseFloat(document.getElementById('commission-input').value); if (!name || !instrument || isNaN(commission)) { setStatus('Template Name, Instrument, and Commission are required.', 'error'); return; } const positive = document.getElementById('positive-buttons-input').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n >= 0); const negative = document.getElementById('negative-buttons-input').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n <= 0); if(!positive.length && !negative.length) { setStatus('At least one positive or negative button value is required.', 'error'); return; } await saveTemplateToFirestore(name, { instrument, pointValue, commission, positive, negative }); showView('main-view'); });
                 
                 document.getElementById('session-time-selector').addEventListener('change', (e) => {
@@ -1143,6 +1243,7 @@
                     const saveDateInput = document.getElementById('save-date');
                     if (!saveDateInput.value) { setStatus("Please select a date to save the session.", "error"); return; }
                     await saveSessionToFirestore({ note: document.getElementById('save-note').value || 'No note', date: saveDateInput.value, sessionTime, score, wins, losses, totalTrades, instrument: currentTemplate.instrument, pointValue: currentTemplate.pointValue, commission: currentTemplate.commission, maxWin, maxLoss }); 
+                    await clearAutoSave();
                     showView('main-view');
                 });
 
