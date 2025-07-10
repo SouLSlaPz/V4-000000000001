@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Russo+One&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
     
     <style>
         /* --- Base Styles --- */
@@ -140,6 +140,8 @@
         .supernova-theme .theme-option-btn:hover { background-color: rgba(250, 204, 21, 0.1); }
         .nocturne-theme .theme-option-btn:hover { background-color: rgba(72, 209, 204, 0.1); }
         .obsidian-theme .theme-option-btn:hover { background-color: rgba(229, 229, 229, 0.1); }
+        .emerald-theme .theme-option-btn:hover { background-color: rgba(16, 185, 129, 0.1); }
+        .volcano-theme .theme-option-btn:hover { background-color: rgba(255, 69, 0, 0.1); }
 
 
         /* --- Dark Theme (Default) --- */
@@ -589,6 +591,62 @@
         .obsidian-theme .ring-losses { stroke: #A1A1AA; }
         .obsidian-theme .data-ring-text { color: #FFFFFF; }
         .obsidian-theme .stats-card { background-color: rgba(28, 28, 30, 0.8); }
+        
+        /* --- Emerald Theme --- */
+        .emerald-theme { background: linear-gradient(to top, #010201, #051412); color: #E2E8F0; font-family: 'JetBrains Mono', monospace; }
+        .emerald-theme .main-container { background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(12px); border: 2px solid #10B981; }
+        .emerald-theme .header-text, .emerald-theme .score-text { color: #E2E8F0; }
+        .emerald-theme .sub-text { color: #10B981; }
+        .emerald-theme .btn-positive { background-color: #10B981; color: #051412; }
+        .emerald-theme .btn-positive:hover { background-color: #059669; }
+        .emerald-theme .btn-negative { background-color: #3730A3; color: #E2E8F0; }
+        .emerald-theme .btn-negative:hover { background-color: #4338CA; }
+        .emerald-theme .btn-neutral { background-color: #334155; color: #E2E8F0; }
+        .emerald-theme .btn-neutral:hover { background-color: #475569; }
+        .emerald-theme .btn-secondary, .emerald-theme .btn-action, .emerald-theme .dropdown, .emerald-theme .history-item { background-color: rgba(15, 23, 42, 0.7); border-color: #10B981; color: #E2E8F0; }
+        .emerald-theme .btn-action { background-color: #334155; color: #E2E8F0; }
+        .emerald-theme .btn-action:hover { background-color: #475569; }
+        .emerald-theme .stats-value.positive, .emerald-theme .profit-positive { color: #10B981; }
+        .emerald-theme .stats-value.negative, .emerald-theme .profit-negative { color: #3730A3; }
+        .emerald-theme .icon-btn { color: #10B981; }
+        .emerald-theme .icon-btn:hover { color: #E2E8F0; }
+        .emerald-theme .score-glow-positive { text-shadow: 0 0 10px #10B981; }
+        .emerald-theme .score-glow-negative { text-shadow: 0 0 10px #3730A3; }
+        .emerald-theme .form-input { background-color: rgba(15, 23, 42, 0.7); border: 1px solid #10B981; color: #E2E8F0; }
+        .emerald-theme .form-input::placeholder { color: #10B981; }
+        .emerald-theme .ring-track { stroke: rgba(16, 185, 129, 0.3); }
+        .emerald-theme .ring-wins { stroke: #10B981; }
+        .emerald-theme .ring-losses { stroke: #3730A3; }
+        .emerald-theme .data-ring-text { color: #E2E8F0; }
+        .emerald-theme .stats-card { background-color: rgba(15, 23, 42, 0.7); }
+
+        /* --- Volcano Theme --- */
+        .volcano-theme { background: linear-gradient(to top, #000000, #4C1D1D, #2D080A); color: #FFF7ED; font-family: 'Russo One', sans-serif; }
+        .volcano-theme .main-container { background-color: rgba(15, 15, 15, 0.6); backdrop-filter: blur(12px); border: 2px solid #FF4500; }
+        .volcano-theme .header-text, .volcano-theme .score-text { color: #FFF7ED; }
+        .volcano-theme .sub-text { color: #FF4500; }
+        .volcano-theme .btn-positive { background-color: #DC2626; color: #FFF7ED; }
+        .volcano-theme .btn-positive:hover { background-color: #B91C1C; }
+        .volcano-theme .btn-negative { background-color: #36454F; color: #FFF7ED; }
+        .volcano-theme .btn-negative:hover { background-color: #475569; }
+        .volcano-theme .btn-neutral { background-color: #FF8C00; color: #000000; }
+        .volcano-theme .btn-neutral:hover { background-color: #FFA500; }
+        .volcano-theme .btn-secondary, .volcano-theme .btn-action, .volcano-theme .dropdown, .volcano-theme .history-item { background-color: rgba(15, 15, 15, 0.8); border-color: rgba(255, 69, 0, 0.5); color: #FFF7ED; }
+        .volcano-theme .btn-action { background-color: #FF8C00; color: #000000; }
+        .volcano-theme .btn-action:hover { background-color: #FFA500; }
+        .volcano-theme .stats-value.positive, .volcano-theme .profit-positive { color: #DC2626; }
+        .volcano-theme .stats-value.negative, .volcano-theme .profit-negative { color: #36454F; }
+        .volcano-theme .icon-btn { color: #FF4500; }
+        .volcano-theme .icon-btn:hover { color: #FFF7ED; }
+        .volcano-theme .score-glow-positive { text-shadow: 0 0 10px #DC2626; }
+        .volcano-theme .score-glow-negative { text-shadow: 0 0 10px #36454F; }
+        .volcano-theme .form-input { background-color: rgba(15, 15, 15, 0.8); border: 1px solid #FF4500; color: #FFF7ED; }
+        .volcano-theme .form-input::placeholder { color: #FF4500; }
+        .volcano-theme .ring-track { stroke: rgba(255, 69, 0, 0.3); }
+        .volcano-theme .ring-wins { stroke: #DC2626; }
+        .volcano-theme .ring-losses { stroke: #36454F; }
+        .volcano-theme .data-ring-text { color: #FFF7ED; }
+        .volcano-theme .stats-card { background-color: rgba(15, 15, 15, 0.8); }
     </style>
 </head>
 <body class="dark-theme app-body">
@@ -811,6 +869,14 @@
                  <button class="theme-option-btn" data-theme="obsidian-theme">
                     <span class="font-semibold">Obsidian</span>
                     <div class="w-16 h-8 rounded-full border-2 border-gray-400" style="background: radial-gradient(circle, #1F1F1F, #000000);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="emerald-theme">
+                    <span class="font-semibold">Emerald</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-green-500" style="background: linear-gradient(to top, #010201, #051412);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="volcano-theme">
+                    <span class="font-semibold">Volcano</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-orange-500" style="background: linear-gradient(to top, #000000, #4C1D1D, #2D080A);"></div>
                 </button>
             </div>
         </div>
