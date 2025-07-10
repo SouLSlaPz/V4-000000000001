@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
     
     <style>
         /* --- Base Styles --- */
@@ -136,6 +136,8 @@
         .oceanic-theme .theme-option-btn:hover { background-color: rgba(100, 255, 218, 0.1); }
         .solarized-theme .theme-option-btn:hover { background-color: rgba(181, 137, 0, 0.1); }
         .iridescent-theme .theme-option-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .nebula-theme .theme-option-btn:hover { background-color: rgba(168, 85, 247, 0.1); }
+        .supernova-theme .theme-option-btn:hover { background-color: rgba(250, 204, 21, 0.1); }
 
 
         /* --- Dark Theme (Default) --- */
@@ -473,6 +475,62 @@
         .iridescent-theme .ring-losses { stroke: #fbcfe8; }
         .iridescent-theme .data-ring-text { color: #581c87; }
         .iridescent-theme .stats-card { background-color: rgba(255, 255, 255, 0.5); }
+        
+        /* --- Nebula Theme --- */
+        .nebula-theme { background: linear-gradient(45deg, #1E1B4B, #86198F, #134E4A); color: #F0F9FF; font-family: 'Exo 2', sans-serif; }
+        .nebula-theme .main-container { background-color: rgba(10, 10, 20, 0.5); backdrop-filter: blur(12px); border: 2px solid #A855F7; }
+        .nebula-theme .header-text, .nebula-theme .score-text { color: #F0F9FF; }
+        .nebula-theme .sub-text { color: #A855F7; }
+        .nebula-theme .btn-positive { background-color: #14B8A6; color: #F0F9FF; }
+        .nebula-theme .btn-positive:hover { background-color: #0D9488; }
+        .nebula-theme .btn-negative { background-color: #D946EF; color: #F0F9FF; }
+        .nebula-theme .btn-negative:hover { background-color: #C026D3; }
+        .nebula-theme .btn-neutral { background-color: #6366F1; color: #F0F9FF; }
+        .nebula-theme .btn-neutral:hover { background-color: #4F46E5; }
+        .nebula-theme .btn-secondary, .nebula-theme .btn-action, .nebula-theme .dropdown, .nebula-theme .history-item { background-color: rgba(10, 10, 20, 0.7); border-color: rgba(168, 85, 247, 0.5); color: #F0F9FF; }
+        .nebula-theme .btn-action { background-color: #6366F1; color: #F0F9FF; }
+        .nebula-theme .btn-action:hover { background-color: #4F46E5; }
+        .nebula-theme .stats-value.positive, .nebula-theme .profit-positive { color: #14B8A6; }
+        .nebula-theme .stats-value.negative, .nebula-theme .profit-negative { color: #D946EF; }
+        .nebula-theme .icon-btn { color: #A855F7; }
+        .nebula-theme .icon-btn:hover { color: #F0F9FF; }
+        .nebula-theme .score-glow-positive { text-shadow: 0 0 10px #14B8A6; }
+        .nebula-theme .score-glow-negative { text-shadow: 0 0 10px #D946EF; }
+        .nebula-theme .form-input { background-color: rgba(10, 10, 20, 0.7); border: 1px solid #A855F7; color: #F0F9FF; }
+        .nebula-theme .form-input::placeholder { color: #A855F7; }
+        .nebula-theme .ring-track { stroke: rgba(168, 85, 247, 0.3); }
+        .nebula-theme .ring-wins { stroke: #14B8A6; }
+        .nebula-theme .ring-losses { stroke: #D946EF; }
+        .nebula-theme .data-ring-text { color: #F0F9FF; }
+        .nebula-theme .stats-card { background-color: rgba(10, 10, 20, 0.7); }
+
+        /* --- Supernova Theme --- */
+        .supernova-theme { background: linear-gradient(45deg, #1E293B, #86198F, #B45309); color: #FFFBEB; font-family: 'Space Mono', monospace; }
+        .supernova-theme .main-container { background-color: rgba(20, 20, 20, 0.6); backdrop-filter: blur(12px); border: 2px solid #FACC15; }
+        .supernova-theme .header-text, .supernova-theme .score-text { color: #FFFBEB; }
+        .supernova-theme .sub-text { color: #FACC15; }
+        .supernova-theme .btn-positive { background-color: #F97316; color: #FFFBEB; }
+        .supernova-theme .btn-positive:hover { background-color: #EA580C; }
+        .supernova-theme .btn-negative { background-color: #4F46E5; color: #FFFBEB; }
+        .supernova-theme .btn-negative:hover { background-color: #4338CA; }
+        .supernova-theme .btn-neutral { background-color: #FACC15; color: #1E293B; }
+        .supernova-theme .btn-neutral:hover { background-color: #EAB308; }
+        .supernova-theme .btn-secondary, .supernova-theme .btn-action, .supernova-theme .dropdown, .supernova-theme .history-item { background-color: rgba(20, 20, 20, 0.7); border-color: rgba(250, 204, 21, 0.5); color: #FFFBEB; }
+        .supernova-theme .btn-action { background-color: #FACC15; color: #1E293B; }
+        .supernova-theme .btn-action:hover { background-color: #EAB308; }
+        .supernova-theme .stats-value.positive, .supernova-theme .profit-positive { color: #F97316; }
+        .supernova-theme .stats-value.negative, .supernova-theme .profit-negative { color: #4F46E5; }
+        .supernova-theme .icon-btn { color: #FACC15; }
+        .supernova-theme .icon-btn:hover { color: #FFFBEB; }
+        .supernova-theme .score-glow-positive { text-shadow: 0 0 10px #F97316; }
+        .supernova-theme .score-glow-negative { text-shadow: 0 0 10px #4F46E5; }
+        .supernova-theme .form-input { background-color: rgba(20, 20, 20, 0.7); border: 1px solid #FACC15; color: #FFFBEB; }
+        .supernova-theme .form-input::placeholder { color: #FACC15; }
+        .supernova-theme .ring-track { stroke: rgba(250, 204, 21, 0.3); }
+        .supernova-theme .ring-wins { stroke: #F97316; }
+        .supernova-theme .ring-losses { stroke: #4F46E5; }
+        .supernova-theme .data-ring-text { color: #FFFBEB; }
+        .supernova-theme .stats-card { background-color: rgba(20, 20, 20, 0.7); }
     </style>
 </head>
 <body class="dark-theme app-body">
@@ -679,6 +737,14 @@
                  <button class="theme-option-btn" data-theme="iridescent-theme">
                     <span class="font-semibold">Iridescent</span>
                     <div class="w-16 h-8 rounded-full border-2 border-purple-200" style="background: linear-gradient(45deg, #a7f3d0, #bae6fd, #fbcfe8, #fef08a);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="nebula-theme">
+                    <span class="font-semibold">Nebula</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-purple-500" style="background: linear-gradient(45deg, #1E1B4B, #86198F, #134E4A);"></div>
+                </button>
+                <button class="theme-option-btn" data-theme="supernova-theme">
+                    <span class="font-semibold">Supernova</span>
+                    <div class="w-16 h-8 rounded-full border-2 border-yellow-500" style="background: linear-gradient(45deg, #1E293B, #86198F, #B45309);"></div>
                 </button>
             </div>
         </div>
@@ -998,11 +1064,16 @@
                 document.getElementById('confirm-reset-btn').addEventListener('click', () => { resetCalculator(); showView('main-view'); });
                 document.getElementById('update-calc-btn').addEventListener('click', () => { const values = document.getElementById('calc-input').value.trim().split(' ').map(Number).filter(n => !isNaN(n)); resetCalculator(); history = []; values.forEach(val => handleButtonClick(val)); showView('main-view'); });
                 document.getElementById('save-template-btn').addEventListener('click', async () => { const name = document.getElementById('template-name-input').value.trim(); const instrument = document.getElementById('instrument-selector').value; const pointValue = instrumentPointValues[instrument]; const commission = parseFloat(document.getElementById('commission-input').value); if (!name || !instrument || isNaN(commission)) { setStatus('Template Name, Instrument, and Commission are required.', 'error'); return; } const positive = document.getElementById('positive-buttons-input').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n >= 0); const negative = document.getElementById('negative-buttons-input').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n <= 0); if(!positive.length && !negative.length) { setStatus('At least one positive or negative button value is required.', 'error'); return; } await saveTemplateToFirestore(name, { instrument, pointValue, commission, positive, negative }); showView('main-view'); });
+                
+                document.getElementById('session-time-selector').addEventListener('change', (e) => {
+                    document.getElementById('custom-time-inputs').classList.toggle('hidden', e.target.value !== 'Custom');
+                });
+
                 document.getElementById('confirm-save-btn').addEventListener('click', async () => { 
                     const currentTemplate = templates[templateSelector.value];
                     if (!currentTemplate) { setStatus("Please select a valid template.", "error"); return; }
                     let sessionTime = document.getElementById('session-time-selector').value; 
-                    if (sessionTime === 'Custom') { const start = document.getElementById('start-time').value; const end = document.getElementById('end-time').value; sessionTime = (start && end) ? `${start}-${end}` : 'Custom'; } 
+                    if (sessionTime === 'Custom') { const start = document.getElementById('start-time').value; const end = document.getElementById('end-time').value; sessionTime = (start && end) ? `${start} - ${end}` : 'Custom'; } 
                     const saveDateInput = document.getElementById('save-date');
                     if (!saveDateInput.value) { setStatus("Please select a date to save the session.", "error"); return; }
                     await saveSessionToFirestore({ note: document.getElementById('save-note').value || 'No note', date: saveDateInput.value, sessionTime, score, wins, losses, totalTrades, instrument: currentTemplate.instrument, pointValue: currentTemplate.pointValue, commission: currentTemplate.commission, maxWin, maxLoss }); 
