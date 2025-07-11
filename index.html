@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Russo+One&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;700&family=DM+Sans:wght@400;700&family=Exo+2:wght@400;700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;700&family=Lato:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700&family=Nunito:wght@400;700&family=Orbitron:wght@400;700&family=Oxanium:wght@400;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Russo+One&family=Source+Sans+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
     
     <style>
         /* --- Base Styles --- */
@@ -40,7 +40,8 @@
             overflow: hidden;
             height: 95vh;
             max-height: 900px;
-            transition: background-color 0.3s ease, border 0.3s ease;
+            transition: background-color 0.3s ease, border 0.3s ease, box-shadow 0.4s ease;
+            position: relative; /* Needed for animation pseudo-element */
         }
         .calc-btn {
             width: 100%;
@@ -55,6 +56,8 @@
             transition: all 0.15s ease-in-out;
             border: 2px solid transparent;
             cursor: pointer;
+            position: relative;
+            overflow: hidden; /* To contain the ripple */
         }
         .calc-btn:active {
             transform: scale(0.96);
@@ -62,6 +65,10 @@
         }
         .btn { @apply font-bold rounded-lg shadow-md transition-transform transform hover:scale-105 active:scale-95; }
         
+        #buttons-container {
+            position: relative; 
+        }
+
         /* --- View Switcher Styles --- */
         .view {
             display: none;
@@ -122,27 +129,119 @@
         .data-ring-details .profit-value { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
         .data-ring-details .wl-value { font-size: 0.8rem; font-weight: 500; }
 
-        /* --- Theme Option Button --- */
-        .theme-option-btn { @apply w-full flex justify-between items-center p-4 rounded-lg transition-colors duration-200; }
-        .dark-theme .theme-option-btn:hover { background-color: #2d3748; }
-        .ice-theme .theme-option-btn:hover { background-color: #e2e8f0; }
-        .sunrise-theme .theme-option-btn:hover { background-color: rgba(255, 255, 255, 0.4); }
-        .cyberpunk-theme .theme-option-btn:hover { background-color: rgba(34, 211, 238, 0.1); }
-        .forest-theme .theme-option-btn:hover { background-color: rgba(110, 231, 183, 0.1); }
-        .crimson-theme .theme-option-btn:hover { background-color: rgba(220, 38, 38, 0.1); }
-        .blueprint-theme .theme-option-btn:hover { background-color: rgba(125, 211, 252, 0.1); }
-        .monochrome-theme .theme-option-btn:hover { background-color: #F3F4F6; }
-        .retro-terminal-theme .theme-option-btn:hover { background-color: rgba(57, 255, 20, 0.1); }
-        .oceanic-theme .theme-option-btn:hover { background-color: rgba(100, 255, 218, 0.1); }
-        .solarized-theme .theme-option-btn:hover { background-color: rgba(181, 137, 0, 0.1); }
-        .iridescent-theme .theme-option-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
-        .nebula-theme .theme-option-btn:hover { background-color: rgba(168, 85, 247, 0.1); }
-        .supernova-theme .theme-option-btn:hover { background-color: rgba(250, 204, 21, 0.1); }
-        .nocturne-theme .theme-option-btn:hover { background-color: rgba(72, 209, 204, 0.1); }
-        .obsidian-theme .theme-option-btn:hover { background-color: rgba(229, 229, 229, 0.1); }
-        .emerald-theme .theme-option-btn:hover { background-color: rgba(16, 185, 129, 0.1); }
-        .volcano-theme .theme-option-btn:hover { background-color: rgba(255, 69, 0, 0.1); }
+        /* --- New Theme Selector Styles --- */
+        .theme-card {
+            position: relative;
+            cursor: pointer;
+            border-radius: 1rem; /* 16px */
+            padding: 1rem; /* 16px */
+            transition: all 0.2s ease-in-out;
+            border: 2px solid;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* 12px */
+        }
+        .theme-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px -4px rgba(0,0,0,0.1);
+        }
+        .theme-card.selected {
+            border-color: var(--selected-theme-border-color, #3b82f6); /* Default blue, will be overridden by JS */
+            box-shadow: 0 0 0 3px var(--selected-theme-shadow-color, rgba(59, 130, 246, 0.4));
+        }
+        .theme-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .theme-name-new {
+            font-weight: 600;
+            font-size: 1rem; /* 16px */
+        }
+        .theme-swatches {
+            display: flex;
+            gap: 0.5rem; /* 8px */
+            margin-top: auto; /* Pushes to the bottom */
+        }
+        .swatch {
+            width: 1.5rem; /* 24px */
+            height: 1.5rem; /* 24px */
+            border-radius: 9999px;
+            border: 2px solid rgba(128, 128, 128, 0.3);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .checkmark-icon {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 1.5rem; /* 24px */
+            height: 1.5rem; /* 24px */
+            background-color: var(--selected-theme-border-color, #3b82f6);
+            color: white;
+            border-radius: 9999px;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-card.selected .checkmark-icon {
+            display: flex; /* Show when selected */
+        }
 
+        /* --- Animation Styles --- */
+        /* Radiating Flash Animation */
+        @keyframes radiate-flash {
+            from { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
+            to { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+        }
+        .main-container.flash-anim::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: var(--anim-color, transparent);
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            pointer-events: none;
+            animation: radiate-flash 0.7s ease-out forwards;
+        }
+
+        /* Border Pulse Animation */
+        @keyframes border-pulse {
+            0% { box-shadow: 0 0 0 0 var(--anim-color-transparent); }
+            50% { box-shadow: 0 0 20px 5px var(--anim-color); }
+            100% { box-shadow: 0 0 0 0 var(--anim-color-transparent); }
+        }
+        .main-container.border-pulse-anim {
+            animation: border-pulse 0.8s ease-in-out;
+        }
+
+        /* Ripple Animation */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            background-color: var(--anim-color);
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Score Pulse Animation */
+        @keyframes score-pulse {
+            50% {
+                transform: scale(1.1);
+                text-shadow: 0 0 25px var(--anim-color, #fff);
+            }
+        }
+        .score-pulse-anim {
+            animation: score-pulse 0.5s ease-out;
+        }
 
         /* --- Dark Theme (Default) --- */
         .dark-theme { background: linear-gradient(to top, #000000, #111111); color: #F9FAFB; font-family: 'Poppins', sans-serif; }
@@ -285,7 +384,7 @@
         .forest-theme .stats-card { background-color: rgba(20, 40, 35, 0.8); }
 
         /* --- Crimson Theme --- */
-        .crimson-theme { background: linear-gradient(to top, #121212, #1C1C1C); color: #F5F5F5; font-family: 'Playfair Display', serif; }
+        .crimson-theme { background: linear-gradient(to top, #121212, #1C1C1C); color: #F5F5F5; font-family: 'Merriweather', serif; }
         .crimson-theme .main-container { background-color: rgba(40, 10, 15, 0.6); backdrop-filter: blur(10px); border: 2px solid #DC2626; }
         .crimson-theme .header-text, .crimson-theme .score-text { color: #F5F5F5; }
         .crimson-theme .sub-text { color: #D4AF37; }
@@ -367,34 +466,6 @@
         .monochrome-theme .ring-losses { stroke: #9CA3AF; }
         .monochrome-theme .data-ring-text { color: #111827; }
         .monochrome-theme .stats-card { background-color: #F9FAFB; }
-
-        /* --- Retro Terminal Theme --- */
-        .retro-terminal-theme { background-color: #000000; color: #39FF14; font-family: 'VT323', monospace; }
-        .retro-terminal-theme .main-container { background-color: #000000; border: 2px solid #39FF14; }
-        .retro-terminal-theme .header-text, .retro-terminal-theme .score-text { color: #39FF14; text-shadow: 0 0 5px #39FF14; }
-        .retro-terminal-theme .sub-text { color: #34D399; }
-        .retro-terminal-theme .btn-positive { background-color: transparent; color: #39FF14; border-color: #39FF14; }
-        .retro-terminal-theme .btn-positive:hover { background-color: rgba(57, 255, 20, 0.1); }
-        .retro-terminal-theme .btn-negative { background-color: transparent; color: #FFB000; border-color: #FFB000; }
-        .retro-terminal-theme .btn-negative:hover { background-color: rgba(255, 176, 0, 0.1); }
-        .retro-terminal-theme .btn-neutral { background-color: transparent; color: #39FF14; border-color: #39FF14; }
-        .retro-terminal-theme .btn-neutral:hover { background-color: rgba(57, 255, 20, 0.1); }
-        .retro-terminal-theme .btn-secondary, .retro-terminal-theme .btn-action, .retro-terminal-theme .dropdown, .retro-terminal-theme .history-item { background-color: #000000; border: 1px solid #34D399; color: #34D399; }
-        .retro-terminal-theme .btn-action { background-color: #39FF14; color: #000000; }
-        .retro-terminal-theme .btn-action:hover { background-color: #34D399; }
-        .retro-terminal-theme .stats-value.positive, .retro-terminal-theme .profit-positive { color: #39FF14; }
-        .retro-terminal-theme .stats-value.negative, .retro-terminal-theme .profit-negative { color: #FFB000; }
-        .retro-terminal-theme .icon-btn { color: #34D399; }
-        .retro-terminal-theme .icon-btn:hover { color: #39FF14; }
-        .retro-terminal-theme .score-glow-positive { text-shadow: 0 0 10px #39FF14; }
-        .retro-terminal-theme .score-glow-negative { text-shadow: 0 0 10px #FFB000; }
-        .retro-terminal-theme .form-input { background-color: #000000; border: 1px solid #34D399; color: #39FF14; }
-        .retro-terminal-theme .form-input::placeholder { color: #34D399; }
-        .retro-terminal-theme .ring-track { stroke: rgba(52, 211, 153, 0.3); }
-        .retro-terminal-theme .ring-wins { stroke: #39FF14; }
-        .retro-terminal-theme .ring-losses { stroke: #FFB000; }
-        .retro-terminal-theme .data-ring-text { color: #39FF14; }
-        .retro-terminal-theme .stats-card { background-color: #000000; border: 1px solid #34D399; }
         
         /* --- Oceanic Theme --- */
         .oceanic-theme { background: linear-gradient(to top, #021024, #08203e); color: #E0E7FF; font-family: 'Source Sans Pro', sans-serif; }
@@ -423,34 +494,6 @@
         .oceanic-theme .ring-losses { stroke: #4f8fc0; }
         .oceanic-theme .data-ring-text { color: #E0E7FF; }
         .oceanic-theme .stats-card { background-color: rgba(10, 30, 60, 0.8); }
-
-        /* --- Solarized Theme --- */
-        .solarized-theme { background-color: #002b36; color: #839496; font-family: 'Fira Code', monospace; }
-        .solarized-theme .main-container { background-color: #073642; border: 2px solid #b58900; }
-        .solarized-theme .header-text, .solarized-theme .score-text { color: #839496; }
-        .solarized-theme .sub-text { color: #586e75; }
-        .solarized-theme .btn-positive { background-color: #859900; color: #002b36; }
-        .solarized-theme .btn-positive:hover { background-color: #93a1a1; }
-        .solarized-theme .btn-negative { background-color: #dc322f; color: #002b36; }
-        .solarized-theme .btn-negative:hover { background-color: #cb4b16; }
-        .solarized-theme .btn-neutral { background-color: #2aa198; color: #002b36; }
-        .solarized-theme .btn-neutral:hover { background-color: #268bd2; }
-        .solarized-theme .btn-secondary, .solarized-theme .btn-action, .solarized-theme .dropdown, .solarized-theme .history-item { background-color: #073642; border-color: #586e75; color: #839496; }
-        .solarized-theme .btn-action { background-color: #2aa198; color: #002b36; }
-        .solarized-theme .btn-action:hover { background-color: #268bd2; }
-        .solarized-theme .stats-value.positive, .solarized-theme .profit-positive { color: #859900; }
-        .solarized-theme .stats-value.negative, .solarized-theme .profit-negative { color: #dc322f; }
-        .solarized-theme .icon-btn { color: #586e75; }
-        .solarized-theme .icon-btn:hover { color: #839496; }
-        .solarized-theme .score-glow-positive { text-shadow: 0 0 8px #859900; }
-        .solarized-theme .score-glow-negative { text-shadow: 0 0 8px #dc322f; }
-        .solarized-theme .form-input { background-color: #002b36; border: 1px solid #586e75; color: #839496; }
-        .solarized-theme .form-input::placeholder { color: #586e75; }
-        .solarized-theme .ring-track { stroke: #586e75; }
-        .solarized-theme .ring-wins { stroke: #859900; }
-        .solarized-theme .ring-losses { stroke: #dc322f; }
-        .solarized-theme .data-ring-text { color: #839496; }
-        .solarized-theme .stats-card { background-color: #073642; border: 1px solid #586e75; }
 
         /* --- Iridescent Theme --- */
         .iridescent-theme { background: linear-gradient(45deg, #a7f3d0, #bae6fd, #fbcfe8, #fef08a); color: #581c87; font-family: 'Poppins', sans-serif; }
@@ -647,6 +690,259 @@
         .volcano-theme .ring-losses { stroke: #36454F; }
         .volcano-theme .data-ring-text { color: #FFF7ED; }
         .volcano-theme .stats-card { background-color: rgba(15, 15, 15, 0.8); }
+
+        /* --- Phantom Theme --- */
+        .phantom-theme { background: radial-gradient(circle, #222222, #000000); color: #FFFFFF; font-family: 'Inter', sans-serif; }
+        .phantom-theme .main-container { background-color: rgba(30, 30, 30, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .phantom-theme .header-text, .phantom-theme .score-text { color: #FFFFFF; }
+        .phantom-theme .sub-text { color: #A0A0A0; }
+        .phantom-theme .btn-positive { background: linear-gradient(to top right, #9CA3AF, #E5E7EB); color: #000000; }
+        .phantom-theme .btn-positive:hover { background: linear-gradient(to top right, #B0B5B9, #FFFFFF); }
+        .phantom-theme .btn-negative { background: linear-gradient(to top right, #1F2937, #4B5563); color: #A0A0A0; }
+        .phantom-theme .btn-negative:hover { background: linear-gradient(to top right, #374151, #6B7280); }
+        .phantom-theme .btn-neutral { background-color: #6B7280; color: #FFFFFF; }
+        .phantom-theme .btn-neutral:hover { background-color: #4B5563; }
+        .phantom-theme .btn-secondary, .phantom-theme .btn-action, .phantom-theme .dropdown, .phantom-theme .history-item { background-color: rgba(28, 28, 30, 0.8); border-color: #A1A1AA; color: #FFFFFF; }
+        .phantom-theme .btn-action { background-color: #FFFFFF; color: #000000; }
+        .phantom-theme .btn-action:hover { background-color: #E5E5E5; }
+        .phantom-theme .stats-value.positive, .phantom-theme .profit-positive { color: #9CA3AF; }
+        .phantom-theme .stats-value.negative, .phantom-theme .profit-negative { color: #4B5563; }
+        .phantom-theme .icon-btn { color: #A0A0A0; }
+        .phantom-theme .icon-btn:hover { color: #FFFFFF; }
+        .phantom-theme .score-glow-positive { text-shadow: none; }
+        .phantom-theme .score-glow-negative { text-shadow: none; }
+        .phantom-theme .form-input { background-color: rgba(28, 28, 30, 0.8); border: 1px solid #A1A1AA; color: #FFFFFF; }
+        .phantom-theme .form-input::placeholder { color: #A1A1AA; }
+        .phantom-theme .ring-track { stroke: #374151; }
+        .phantom-theme .ring-wins { stroke: #9CA3AF; }
+        .phantom-theme .ring-losses { stroke: #4B5563; }
+        .phantom-theme .data-ring-text { color: #FFFFFF; }
+        .phantom-theme .stats-card { background-color: rgba(28, 28, 30, 0.8); }
+
+        /* --- Carbon Theme --- */
+        .carbon-theme { background: linear-gradient(45deg, #111111, #333333); color: #FFFFFF; font-family: 'Oxanium', sans-serif; }
+        .carbon-theme .main-container { background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(14px); border: 2px solid #EF4444; }
+        .carbon-theme .header-text, .carbon-theme .score-text { color: #FFFFFF; }
+        .carbon-theme .sub-text { color: #EF4444; }
+        .carbon-theme .btn-positive { background-color: #EF4444; color: #FFFFFF; }
+        .carbon-theme .btn-positive:hover { background-color: #DC2626; }
+        .carbon-theme .btn-negative { background: linear-gradient(to top right, #222, #444); color: #E5E5E5; }
+        .carbon-theme .btn-negative:hover { background: linear-gradient(to top right, #333, #555); }
+        .carbon-theme .btn-neutral { background: linear-gradient(to top right, #888, #BBB); color: #000000; }
+        .carbon-theme .btn-neutral:hover { background: linear-gradient(to top right, #999, #CCC); }
+        .carbon-theme .btn-secondary, .carbon-theme .btn-action, .carbon-theme .dropdown, .carbon-theme .history-item { background-color: rgba(0, 0, 0, 0.7); border-color: #EF4444; color: #FFFFFF; }
+        .carbon-theme .btn-action { background: linear-gradient(to top right, #888, #BBB); color: #000000; }
+        .carbon-theme .btn-action:hover { background: linear-gradient(to top right, #999, #CCC); }
+        .carbon-theme .stats-value.positive, .carbon-theme .profit-positive { color: #EF4444; }
+        .carbon-theme .stats-value.negative, .carbon-theme .profit-negative { color: #9CA3AF; }
+        .carbon-theme .icon-btn { color: #EF4444; }
+        .carbon-theme .icon-btn:hover { color: #FFFFFF; }
+        .carbon-theme .score-glow-positive { text-shadow: 0 0 10px #EF4444; }
+        .carbon-theme .score-glow-negative { text-shadow: none; }
+        .carbon-theme .form-input { background-color: rgba(0, 0, 0, 0.7); border: 1px solid #EF4444; color: #FFFFFF; }
+        .carbon-theme .form-input::placeholder { color: #EF4444; }
+        .carbon-theme .ring-track { stroke: #333333; }
+        .carbon-theme .ring-wins { stroke: #EF4444; }
+        .carbon-theme .ring-losses { stroke: #444; }
+        .carbon-theme .data-ring-text { color: #FFFFFF; }
+        .carbon-theme .stats-card { background-color: rgba(0, 0, 0, 0.7); }
+
+        /* --- Aura Theme --- */
+        .aura-theme { background: linear-gradient(45deg, #FFDDE1, #EE9CA7, #C6EA8D); color: #444444; font-family: 'Montserrat', sans-serif; }
+        .aura-theme .main-container { background-color: rgba(255, 255, 255, 0.5); backdrop-filter: blur(16px); border: 1px solid #A78BFA; }
+        .aura-theme .header-text, .aura-theme .score-text { color: #444444; }
+        .aura-theme .sub-text { color: #A78BFA; }
+        .aura-theme .btn-positive { background-color: #FFDAB9; color: #444444; }
+        .aura-theme .btn-positive:hover { background-color: #FFC0CB; }
+        .aura-theme .btn-negative { background-color: #ADD8E6; color: #444444; }
+        .aura-theme .btn-negative:hover { background-color: #87CEEB; }
+        .aura-theme .btn-neutral { background-color: #A78BFA; color: white; }
+        .aura-theme .btn-neutral:hover { background-color: #8B5CF6; }
+        .aura-theme .btn-secondary, .aura-theme .btn-action, .aura-theme .dropdown, .aura-theme .history-item { background-color: rgba(255, 255, 255, 0.6); border-color: #A78BFA; color: #444444; }
+        .aura-theme .btn-action { background-color: #A78BFA; color: white; }
+        .aura-theme .btn-action:hover { background-color: #8B5CF6; }
+        .aura-theme .stats-value.positive, .aura-theme .profit-positive { color: #FFDAB9; }
+        .aura-theme .stats-value.negative, .aura-theme .profit-negative { color: #ADD8E6; }
+        .aura-theme .icon-btn { color: #A78BFA; }
+        .aura-theme .icon-btn:hover { color: #444444; }
+        .aura-theme .score-glow-positive { text-shadow: 0 0 10px #FFDAB9; }
+        .aura-theme .score-glow-negative { text-shadow: 0 0 10px #ADD8E6; }
+        .aura-theme .form-input { background-color: rgba(255, 255, 255, 0.6); border: 1px solid #A78BFA; color: #444444; }
+        .aura-theme .form-input::placeholder { color: #A78BFA; }
+        .aura-theme .ring-track { stroke: rgba(167, 139, 250, 0.3); }
+        .aura-theme .ring-wins { stroke: #FFDAB9; }
+        .aura-theme .ring-losses { stroke: #ADD8E6; }
+        .aura-theme .data-ring-text { color: #444444; }
+        .aura-theme .stats-card { background-color: rgba(255, 255, 255, 0.6); }
+        
+        /* --- Frostfire Theme --- */
+        .frostfire-theme { background: linear-gradient(to top, #3B82F6, #60A5FA); color: #FFFFFF; font-family: 'Orbitron', sans-serif; }
+        .frostfire-theme .main-container { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(12px); border: 2px solid #F97316; }
+        .frostfire-theme .header-text, .frostfire-theme .score-text { color: #FFFFFF; }
+        .frostfire-theme .sub-text { color: #F97316; }
+        .frostfire-theme .btn-positive { background-color: #F97316; color: #FFFFFF; }
+        .frostfire-theme .btn-positive:hover { background-color: #EA580C; }
+        .frostfire-theme .btn-negative { background-color: #3B82F6; color: #FFFFFF; }
+        .frostfire-theme .btn-negative:hover { background-color: #2563EB; }
+        .frostfire-theme .btn-neutral { background-color: #F97316; color: #FFFFFF; }
+        .frostfire-theme .btn-neutral:hover { background-color: #EA580C; }
+        .frostfire-theme .btn-secondary, .frostfire-theme .btn-action, .frostfire-theme .dropdown, .frostfire-theme .history-item { background-color: rgba(255, 255, 255, 0.2); border-color: #F97316; color: #FFFFFF; }
+        .frostfire-theme .btn-action { background-color: #F97316; color: #FFFFFF; }
+        .frostfire-theme .btn-action:hover { background-color: #EA580C; }
+        .frostfire-theme .stats-value.positive, .frostfire-theme .profit-positive { color: #F97316; }
+        .frostfire-theme .stats-value.negative, .frostfire-theme .profit-negative { color: #60A5FA; }
+        .frostfire-theme .icon-btn { color: #F97316; }
+        .frostfire-theme .icon-btn:hover { color: #FFFFFF; }
+        .frostfire-theme .score-glow-positive { text-shadow: 0 0 10px #F97316; }
+        .frostfire-theme .score-glow-negative { text-shadow: 0 0 10px #60A5FA; }
+        .frostfire-theme .form-input { background-color: rgba(255, 255, 255, 0.2); border: 1px solid #F97316; color: #FFFFFF; }
+        .frostfire-theme .form-input::placeholder { color: #F97316; }
+        .frostfire-theme .ring-track { stroke: rgba(249, 115, 22, 0.3); }
+        .frostfire-theme .ring-wins { stroke: #F97316; }
+        .frostfire-theme .ring-losses { stroke: #3B82F6; }
+        .frostfire-theme .data-ring-text { color: #FFFFFF; }
+        .frostfire-theme .stats-card { background-color: rgba(255, 255, 255, 0.2); }
+
+        /* --- Gilded Theme --- */
+        .gilded-theme { background: linear-gradient(to bottom, #1C1C1C, #111111); color: #EAEAEA; font-family: 'Cinzel', serif; }
+        .gilded-theme .main-container { background-color: rgba(25, 25, 25, 0.5); backdrop-filter: blur(12px); border: 2px solid #E6B800; }
+        .gilded-theme .header-text, .gilded-theme .score-text { color: #E6B800; }
+        .gilded-theme .sub-text { color: #EAEAEA; }
+        .gilded-theme .btn-positive { background-color: #000000; color: #E6B800; border: 1px solid #E6B800; }
+        .gilded-theme .btn-positive:hover { background-color: #111111; }
+        .gilded-theme .btn-negative { background-color: #333333; color: #A0A0A0; }
+        .gilded-theme .btn-negative:hover { background-color: #444444; }
+        .gilded-theme .btn-neutral { background: linear-gradient(to top right, #B8860B, #FFD700); color: #000000; }
+        .gilded-theme .btn-neutral:hover { background: linear-gradient(to top right, #DAA520, #FFEC8B); }
+        .gilded-theme .btn-secondary, .gilded-theme .btn-action, .gilded-theme .dropdown, .gilded-theme .history-item { background-color: rgba(25, 25, 25, 0.8); border-color: #E6B800; color: #EAEAEA; }
+        .gilded-theme .btn-action { background: linear-gradient(to top right, #B8860B, #FFD700); color: #000000; }
+        .gilded-theme .btn-action:hover { background: linear-gradient(to top right, #DAA520, #FFEC8B); }
+        .gilded-theme .stats-value.positive, .gilded-theme .profit-positive { color: #E6B800; }
+        .gilded-theme .stats-value.negative, .gilded-theme .profit-negative { color: #A0A0A0; }
+        .gilded-theme .icon-btn { color: #E6B800; }
+        .gilded-theme .icon-btn:hover { color: #FFF; }
+        .gilded-theme .score-glow-positive { text-shadow: 0 0 10px #E6B800; }
+        .gilded-theme .score-glow-negative { text-shadow: none; }
+        .gilded-theme .form-input { background-color: rgba(25, 25, 25, 0.8); border: 1px solid #E6B800; color: #EAEAEA; }
+        .gilded-theme .form-input::placeholder { color: #E6B800; }
+        .gilded-theme .ring-track { stroke: #333333; }
+        .gilded-theme .ring-wins { stroke: #E6B800; }
+        .gilded-theme .ring-losses { stroke: #A0A0A0; }
+        .gilded-theme .data-ring-text { color: #EAEAEA; }
+        .gilded-theme .stats-card { background-color: rgba(25, 25, 25, 0.8); }
+
+        /* --- Black Gold Theme --- */
+        .black-gold-theme { background: linear-gradient(45deg, #121212, #282828); color: #F5F5F4; font-family: 'Cormorant Garamond', serif; }
+        .black-gold-theme .main-container { background-color: rgba(20, 20, 20, 0.4); backdrop-filter: blur(12px); border: 2px solid #D4AF37; }
+        .black-gold-theme .header-text, .black-gold-theme .score-text { color: #D4AF37; }
+        .black-gold-theme .sub-text { color: #F5F5F4; }
+        .black-gold-theme .btn-positive { background-color: #1C1917; color: #D4AF37; border: 1px solid #D4AF37; }
+        .black-gold-theme .btn-positive:hover { background-color: #292524; }
+        .black-gold-theme .btn-negative { background-color: #44403C; color: #A8A29E; }
+        .black-gold-theme .btn-negative:hover { background-color: #57534E; }
+        .black-gold-theme .btn-neutral { background-color: #D4AF37; color: #1C1917; }
+        .black-gold-theme .btn-neutral:hover { background-color: #ca9f22; }
+        .black-gold-theme .btn-secondary, .black-gold-theme .btn-action, .black-gold-theme .dropdown, .black-gold-theme .history-item { background-color: rgba(20, 20, 20, 0.8); border-color: #D4AF37; color: #F5F5F4; }
+        .black-gold-theme .btn-action { background-color: #D4AF37; color: #1C1917; }
+        .black-gold-theme .btn-action:hover { background-color: #ca9f22; }
+        .black-gold-theme .stats-value.positive, .black-gold-theme .profit-positive { color: #D4AF37; }
+        .black-gold-theme .stats-value.negative, .black-gold-theme .profit-negative { color: #A8A29E; }
+        .black-gold-theme .icon-btn { color: #D4AF37; }
+        .black-gold-theme .icon-btn:hover { color: #F5F5F4; }
+        .black-gold-theme .score-glow-positive { text-shadow: 0 0 10px #D4AF37; }
+        .black-gold-theme .score-glow-negative { text-shadow: none; }
+        .black-gold-theme .form-input { background-color: rgba(20, 20, 20, 0.8); border: 1px solid #D4AF37; color: #F5F5F4; }
+        .black-gold-theme .form-input::placeholder { color: #D4AF37; }
+        .black-gold-theme .ring-track { stroke: #44403C; }
+        .black-gold-theme .ring-wins { stroke: #D4AF37; }
+        .black-gold-theme .ring-losses { stroke: #A8A29E; }
+        .black-gold-theme .data-ring-text { color: #F5F5F4; }
+        .black-gold-theme .stats-card { background-color: rgba(20, 20, 20, 0.8); }
+
+        /* --- NEW: Midnight Bloom Theme --- */
+        .midnight-bloom-theme { background: linear-gradient(to top, #0c0a2d, #1d1a3f); color: #e0e7ff; font-family: 'DM Sans', sans-serif; }
+        .midnight-bloom-theme .main-container { background-color: rgba(29, 26, 63, 0.5); backdrop-filter: blur(16px); border: 2px solid #f43f5e; }
+        .midnight-bloom-theme .header-text, .midnight-bloom-theme .score-text { color: #e0e7ff; }
+        .midnight-bloom-theme .sub-text { color: #a78bfa; }
+        .midnight-bloom-theme .btn-positive { background-color: #22d3ee; color: #1d1a3f; }
+        .midnight-bloom-theme .btn-positive:hover { background-color: #67e8f9; }
+        .midnight-bloom-theme .btn-negative { background-color: #f43f5e; color: #e0e7ff; }
+        .midnight-bloom-theme .btn-negative:hover { background-color: #fb7185; }
+        .midnight-bloom-theme .btn-neutral { background-color: #a78bfa; color: #1d1a3f; }
+        .midnight-bloom-theme .btn-neutral:hover { background-color: #c4b5fd; }
+        .midnight-bloom-theme .btn-secondary, .midnight-bloom-theme .btn-action, .midnight-bloom-theme .dropdown, .midnight-bloom-theme .history-item { background-color: rgba(29, 26, 63, 0.7); border-color: rgba(167, 139, 250, 0.4); color: #e0e7ff; }
+        .midnight-bloom-theme .btn-action { background-color: #a78bfa; color: #1d1a3f; }
+        .midnight-bloom-theme .btn-action:hover { background-color: #c4b5fd; }
+        .midnight-bloom-theme .stats-value.positive, .midnight-bloom-theme .profit-positive { color: #22d3ee; }
+        .midnight-bloom-theme .stats-value.negative, .midnight-bloom-theme .profit-negative { color: #f43f5e; }
+        .midnight-bloom-theme .icon-btn { color: #a78bfa; }
+        .midnight-bloom-theme .icon-btn:hover { color: #e0e7ff; }
+        .midnight-bloom-theme .score-glow-positive { text-shadow: 0 0 15px rgba(34, 211, 238, 0.6); }
+        .midnight-bloom-theme .score-glow-negative { text-shadow: 0 0 15px rgba(244, 63, 94, 0.6); }
+        .midnight-bloom-theme .form-input { background-color: rgba(29, 26, 63, 0.7); border: 1px solid #a78bfa; color: #e0e7ff; }
+        .midnight-bloom-theme .form-input::placeholder { color: #a78bfa; }
+        .midnight-bloom-theme .ring-track { stroke: rgba(167, 139, 250, 0.3); }
+        .midnight-bloom-theme .ring-wins { stroke: #22d3ee; }
+        .midnight-bloom-theme .ring-losses { stroke: #f43f5e; }
+        .midnight-bloom-theme .data-ring-text { color: #e0e7ff; }
+        .midnight-bloom-theme .stats-card { background-color: rgba(29, 26, 63, 0.7); }
+
+        /* --- NEW: Crystal Clear Theme --- */
+        .crystal-clear-theme { background: linear-gradient(to top, #e0f2fe, #f0f9ff); color: #075985; font-family: 'Inter', sans-serif; }
+        .crystal-clear-theme .main-container { background-color: rgba(255, 255, 255, 0.55); backdrop-filter: blur(16px); border: 1px solid rgba(0, 0, 0, 0.1); }
+        .crystal-clear-theme .header-text, .crystal-clear-theme .score-text { color: #075985; }
+        .crystal-clear-theme .sub-text { color: #0369a1; }
+        .crystal-clear-theme .btn-positive { background-color: #16a34a; color: white; }
+        .crystal-clear-theme .btn-positive:hover { background-color: #22c55e; }
+        .crystal-clear-theme .btn-negative { background-color: #f97316; color: white; }
+        .crystal-clear-theme .btn-negative:hover { background-color: #fb923c; }
+        .crystal-clear-theme .btn-neutral { background-color: #6366f1; color: white; }
+        .crystal-clear-theme .btn-neutral:hover { background-color: #818cf8; }
+        .crystal-clear-theme .btn-secondary, .crystal-clear-theme .btn-action, .crystal-clear-theme .dropdown, .crystal-clear-theme .history-item { background-color: rgba(255, 255, 255, 0.7); border-color: rgba(3, 105, 161, 0.2); color: #075985; }
+        .crystal-clear-theme .btn-action { background-color: #6366f1; color: white; }
+        .crystal-clear-theme .btn-action:hover { background-color: #818cf8; }
+        .crystal-clear-theme .stats-value.positive, .crystal-clear-theme .profit-positive { color: #16a34a; }
+        .crystal-clear-theme .stats-value.negative, .crystal-clear-theme .profit-negative { color: #f97316; }
+        .crystal-clear-theme .icon-btn { color: #0369a1; }
+        .crystal-clear-theme .icon-btn:hover { color: #075985; }
+        .crystal-clear-theme .score-glow-positive { text-shadow: 0 0 15px rgba(22, 163, 74, 0.4); }
+        .crystal-clear-theme .score-glow-negative { text-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
+        .crystal-clear-theme .form-input { background-color: rgba(255, 255, 255, 0.7); border: 1px solid rgba(3, 105, 161, 0.3); color: #075985; }
+        .crystal-clear-theme .form-input::placeholder { color: #0ea5e9; }
+        .crystal-clear-theme .ring-track { stroke: rgba(3, 105, 161, 0.2); }
+        .crystal-clear-theme .ring-wins { stroke: #16a34a; }
+        .crystal-clear-theme .ring-losses { stroke: #f97316; }
+        .crystal-clear-theme .data-ring-text { color: #075985; }
+        .crystal-clear-theme .stats-card { background-color: rgba(255, 255, 255, 0.7); }
+
+        /* --- NEW: Duskfire Theme --- */
+        .duskfire-theme { background: linear-gradient(to top, #4c1d95, #f97316, #fef08a); color: #fefce8; font-family: 'Exo 2', sans-serif; }
+        .duskfire-theme .main-container { background-color: rgba(40, 20, 60, 0.6); backdrop-filter: blur(16px); border: 2px solid #c2410c; }
+        .duskfire-theme .header-text, .duskfire-theme .score-text { color: #fefce8; }
+        .duskfire-theme .sub-text { color: #a78bfa; }
+        .duskfire-theme .btn-positive { background-color: #c2410c; color: #fefce8; }
+        .duskfire-theme .btn-positive:hover { background-color: #ea580c; }
+        .duskfire-theme .btn-negative { background-color: #581c87; color: #fefce8; }
+        .duskfire-theme .btn-negative:hover { background-color: #6d28d9; }
+        .duskfire-theme .btn-neutral { background-color: #9a3412; color: #fefce8; }
+        .duskfire-theme .btn-neutral:hover { background-color: #c2410c; }
+        .duskfire-theme .btn-secondary, .duskfire-theme .btn-action, .duskfire-theme .dropdown, .duskfire-theme .history-item { background-color: rgba(40, 20, 60, 0.7); border-color: rgba(194, 65, 12, 0.4); color: #fefce8; }
+        .duskfire-theme .btn-action { background-color: #9a3412; color: #fefce8; }
+        .duskfire-theme .btn-action:hover { background-color: #c2410c; }
+        .duskfire-theme .stats-value.positive, .duskfire-theme .profit-positive { color: #c2410c; }
+        .duskfire-theme .stats-value.negative, .duskfire-theme .profit-negative { color: #a78bfa; }
+        .duskfire-theme .icon-btn { color: #a78bfa; }
+        .duskfire-theme .icon-btn:hover { color: #fefce8; }
+        .duskfire-theme .score-glow-positive { text-shadow: 0 0 15px rgba(234, 88, 12, 0.6); }
+        .duskfire-theme .score-glow-negative { text-shadow: 0 0 15px rgba(167, 139, 250, 0.6); }
+        .duskfire-theme .form-input { background-color: rgba(40, 20, 60, 0.7); border: 1px solid #a78bfa; color: #fefce8; }
+        .duskfire-theme .form-input::placeholder { color: #a78bfa; }
+        .duskfire-theme .ring-track { stroke: rgba(167, 139, 250, 0.3); }
+        .duskfire-theme .ring-wins { stroke: #c2410c; }
+        .duskfire-theme .ring-losses { stroke: #581c87; }
+        .duskfire-theme .data-ring-text { color: #fefce8; }
+        .duskfire-theme .stats-card { background-color: rgba(40, 20, 60, 0.7); }
+
     </style>
 </head>
 <body class="dark-theme app-body">
@@ -697,7 +993,7 @@
                     </button>
                      <button id="edit-templates-btn" class="btn btn-secondary text-sm !py-2 !px-3">Edit</button>
                 </div>
-        
+    
                 <!-- Buttons Grid -->
                 <div id="buttons-container" class="grid grid-cols-3 gap-4"></div>
                 
@@ -797,7 +1093,7 @@
             <div id="stats-content" class="space-y-3 overflow-y-auto -mr-4 pr-4"></div>
         </div>
 
-        <!-- Theme Selector View -->
+        <!-- MODIFIED Theme Selector View -->
         <div id="theme-view" class="view">
             <div class="flex justify-between items-center mb-6 flex-shrink-0">
                 <h3 class="text-xl font-bold header-text">Select a Theme</h3>
@@ -805,79 +1101,8 @@
                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
                 </button>
             </div>
-            <div class="space-y-4">
-                <button class="theme-option-btn" data-theme="dark-theme">
-                    <span class="font-semibold">Dark</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-gray-600" style="background: linear-gradient(to top, #000000, #111111);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="ice-theme">
-                    <span class="font-semibold">Ice</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-gray-200" style="background: linear-gradient(to top, #f3e5f5, #e0f7fa);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="sunrise-theme">
-                    <span class="font-semibold">Sunrise</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-purple-200" style="background: linear-gradient(to top, #D8B4FE, #FDE68A);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="cyberpunk-theme">
-                    <span class="font-semibold">Cyberpunk</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-pink-400" style="background: linear-gradient(to top, #2D0B5A, #0C1445);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="forest-theme">
-                    <span class="font-semibold">Forest</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-green-900" style="background: linear-gradient(to top, #1E2A2A, #07373E);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="crimson-theme">
-                    <span class="font-semibold">Crimson</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-red-500" style="background: linear-gradient(to top, #121212, #1C1C1C);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="blueprint-theme">
-                    <span class="font-semibold">Blueprint</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-cyan-300" style="background-color: #0A2240;"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="monochrome-theme">
-                    <span class="font-semibold">Monochrome</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-gray-300" style="background-color: #F3F4F6;"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="retro-terminal-theme">
-                    <span class="font-semibold">Retro Terminal</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-green-500" style="background-color: #000000;"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="oceanic-theme">
-                    <span class="font-semibold">Oceanic</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-teal-300" style="background: linear-gradient(to top, #021024, #08203e);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="solarized-theme">
-                    <span class="font-semibold">Solarized</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-yellow-600" style="background-color: #002b36;"></div>
-                </button>
-                 <button class="theme-option-btn" data-theme="iridescent-theme">
-                    <span class="font-semibold">Iridescent</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-purple-200" style="background: linear-gradient(45deg, #a7f3d0, #bae6fd, #fbcfe8, #fef08a);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="nebula-theme">
-                    <span class="font-semibold">Nebula</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-purple-500" style="background: linear-gradient(45deg, #1E1B4B, #86198F, #134E4A);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="supernova-theme">
-                    <span class="font-semibold">Supernova</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-yellow-500" style="background: linear-gradient(45deg, #1E293B, #86198F, #B45309);"></div>
-                </button>
-                 <button class="theme-option-btn" data-theme="nocturne-theme">
-                    <span class="font-semibold">Nocturne</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-red-800" style="background: linear-gradient(to top, #191970, #4B0000, #003300);"></div>
-                </button>
-                 <button class="theme-option-btn" data-theme="obsidian-theme">
-                    <span class="font-semibold">Obsidian</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-gray-400" style="background: radial-gradient(circle, #1F1F1F, #000000);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="emerald-theme">
-                    <span class="font-semibold">Emerald</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-green-500" style="background: linear-gradient(to top, #010201, #051412);"></div>
-                </button>
-                <button class="theme-option-btn" data-theme="volcano-theme">
-                    <span class="font-semibold">Volcano</span>
-                    <div class="w-16 h-8 rounded-full border-2 border-orange-500" style="background: linear-gradient(to top, #000000, #4C1D1D, #2D080A);"></div>
-                </button>
+            <div id="theme-grid" class="grid grid-cols-2 sm:grid-cols-2 gap-4 overflow-y-auto -mr-4 pr-4">
+                <!-- Theme cards will be injected here by JS -->
             </div>
         </div>
 
@@ -962,6 +1187,7 @@
             let userId = null, sessionToDeleteId = null, templateToDeleteName = null;
             let db, auth; // Make db and auth accessible in the broader scope
 
+            const mainContainerEl = document.querySelector('.main-container');
             const mainScoreEl = document.getElementById('main-score');
             const winsTrackerDetailEl = document.getElementById('wins-tracker-detail');
             const lossesTrackerDetailEl = document.getElementById('losses-tracker-detail');
@@ -986,10 +1212,46 @@
                 "NQ": { instrument: "NQ", pointValue: 20, commission: 4.20, positive: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], negative: [-4, -6, -8, -10] } 
             };
 
+            // --- THEME DATA FOR NEW SELECTOR ---
+            const themeData = [
+                { id: 'dark-theme', name: 'Dark', font: "'Poppins', sans-serif", colors: { bg: 'rgba(17, 17, 17, 0.8)', text: '#F9FAFB', border: '#48bb78', p: '#15803d', n: '#b91c1c', a: '#374151' } },
+                { id: 'ice-theme', name: 'Ice', font: "'Lato', sans-serif", colors: { bg: 'rgba(255, 255, 255, 0.8)', text: '#2d3748', border: '#805ad5', p: '#3182ce', n: '#805ad5', a: '#e2e8f0' } },
+                { id: 'sunrise-theme', name: 'Sunrise', font: "'Lato', sans-serif", colors: { bg: 'rgba(255, 255, 255, 0.65)', text: '#422006', border: '#F97316', p: '#F97316', n: '#581C87', a: '#854D0E' } },
+                { id: 'cyberpunk-theme', name: 'Cyberpunk', font: "'Orbitron', sans-serif", colors: { bg: 'rgba(10, 10, 25, 0.7)', text: '#A5F3FC', border: '#F472B6', p: '#22D3EE', n: '#F472B6', a: '#A3E635' } },
+                { id: 'forest-theme', name: 'Forest', font: "'Nunito', sans-serif", colors: { bg: 'rgba(20, 40, 35, 0.8)', text: '#EAE7E2', border: '#6EE7B7', p: '#6EE7B7', n: '#E57373', a: '#8D6E63' } },
+                { id: 'crimson-theme', name: 'Crimson', font: "'Merriweather', serif", colors: { bg: 'rgba(28, 28, 28, 0.8)', text: '#F5F5F5', border: '#DC2626', p: '#B91C1C', n: '#4B5563', a: '#D4AF37' } },
+                { id: 'blueprint-theme', name: 'Blueprint', font: "'Roboto Mono', monospace", colors: { bg: 'rgba(5, 20, 45, 0.8)', text: '#FFFFFF', border: '#7DD3FC', p: '#4ADE80', n: '#FACC15', a: '#FFFFFF' } },
+                { id: 'monochrome-theme', name: 'Monochrome', font: "'Inter', sans-serif", colors: { bg: '#FFFFFF', text: '#111827', border: '#111827', p: '#111827', n: '#E5E7EB', a: '#D1D5DB' } },
+                { id: 'oceanic-theme', name: 'Oceanic', font: "'Source Sans Pro', sans-serif", colors: { bg: 'rgba(10, 30, 60, 0.8)', text: '#E0E7FF', border: '#64ffda', p: '#FF7F50', n: '#4f8fc0', a: '#64ffda' } },
+                { id: 'iridescent-theme', name: 'Iridescent', font: "'Poppins', sans-serif", colors: { bg: 'rgba(255, 255, 255, 0.4)', text: '#0f766e', border: '#d8b4fe', p: 'rgba(167, 243, 208, 0.7)', n: 'rgba(251, 207, 232, 0.7)', a: 'rgba(216, 180, 254, 0.7)' } },
+                { id: 'nebula-theme', name: 'Nebula', font: "'Exo 2', sans-serif", colors: { bg: 'rgba(10, 10, 20, 0.7)', text: '#F0F9FF', border: '#A855F7', p: '#14B8A6', n: '#D946EF', a: '#6366F1' } },
+                { id: 'supernova-theme', name: 'Supernova', font: "'Space Mono', monospace", colors: { bg: 'rgba(20, 20, 20, 0.7)', text: '#FFFBEB', border: '#FACC15', p: '#F97316', n: '#4F46E5', a: '#FACC15' } },
+                { id: 'nocturne-theme', name: 'Nocturne', font: "'DM Sans', sans-serif", colors: { bg: 'rgba(10, 10, 10, 0.8)', text: '#E5E5E5', border: '#8B0000', p: '#006400', n: '#8B0000', a: '#4169E1' } },
+                { id: 'obsidian-theme', name: 'Obsidian', font: "'IBM Plex Mono', monospace", colors: { bg: 'rgba(28, 28, 30, 0.8)', text: '#FFFFFF', border: '#A1A1AA', p: '#38BDF8', n: '#3F3F46', a: '#FFFFFF' } },
+                { id: 'emerald-theme', name: 'Emerald', font: "'JetBrains Mono', monospace", colors: { bg: 'rgba(15, 23, 42, 0.7)', text: '#E2E8F0', border: '#10B981', p: '#10B981', n: '#3730A3', a: '#334155' } },
+                { id: 'volcano-theme', name: 'Volcano', font: "'Russo One', sans-serif", colors: { bg: 'rgba(15, 15, 15, 0.8)', text: '#FFF7ED', border: '#FF4500', p: '#DC2626', n: '#36454F', a: '#FF8C00' } },
+                { id: 'phantom-theme', name: 'Phantom', font: "'Inter', sans-serif", colors: { bg: 'rgba(28, 28, 30, 0.8)', text: '#FFFFFF', border: '#A1A1AA', p: '#9CA3AF', n: '#4B5563', a: '#6B7280' } },
+                { id: 'carbon-theme', name: 'Carbon', font: "'Oxanium', sans-serif", colors: { bg: 'rgba(0, 0, 0, 0.7)', text: '#FFFFFF', border: '#EF4444', p: '#EF4444', n: '#444', a: '#BBB' } },
+                { id: 'aura-theme', name: 'Aura', font: "'Montserrat', sans-serif", colors: { bg: 'rgba(255, 255, 255, 0.6)', text: '#444444', border: '#A78BFA', p: '#FFDAB9', n: '#ADD8E6', a: '#A78BFA' } },
+                { id: 'frostfire-theme', name: 'Frostfire', font: "'Orbitron', sans-serif", colors: { bg: 'rgba(255, 255, 255, 0.2)', text: '#FFFFFF', border: '#F97316', p: '#F97316', n: '#3B82F6', a: '#60A5FA' } },
+                { id: 'gilded-theme', name: 'Gilded', font: "'Cinzel', serif", colors: { bg: 'rgba(25, 25, 25, 0.8)', text: '#EAEAEA', border: '#E6B800', p: '#E6B800', n: '#333333', a: '#FFD700' } },
+                { id: 'black-gold-theme', name: 'Black Gold', font: "'Cormorant Garamond', serif", colors: { bg: 'rgba(20, 20, 20, 0.8)', text: '#F5F5F4', border: '#D4AF37', p: '#D4AF37', n: '#A8A29E', a: '#1C1917' } },
+                { id: 'midnight-bloom-theme', name: 'Midnight Bloom', font: "'DM Sans', sans-serif", colors: { bg: 'rgba(29, 26, 63, 0.5)', text: '#e0e7ff', border: '#f43f5e', p: '#22d3ee', n: '#f43f5e', a: '#a78bfa' } },
+                { id: 'crystal-clear-theme', name: 'Crystal Clear', font: "'Inter', sans-serif", colors: { bg: 'rgba(255, 255, 255, 0.55)', text: '#075985', border: '#6366f1', p: '#16a34a', n: '#f97316', a: '#6366f1' } },
+                { id: 'duskfire-theme', name: 'Duskfire', font: "'Exo 2', sans-serif", colors: { bg: 'rgba(40, 20, 60, 0.6)', text: '#fefce8', border: '#c2410c', p: '#c2410c', n: '#581c87', a: '#9a3412' } },
+            ];
+            
+            // --- NEW: Animation Theme Mapping ---
+            const rippleThemes = new Set(['cyberpunk-theme', 'blueprint-theme', 'oceanic-theme', 'emerald-theme', 'crimson-theme', 'volcano-theme', 'gilded-theme', 'black-gold-theme', 'frostfire-theme']);
+            const borderPulseThemes = new Set(['ice-theme', 'sunrise-theme', 'forest-theme', 'iridescent-theme', 'nebula-theme', 'supernova-theme', 'nocturne-theme', 'obsidian-theme', 'carbon-theme', 'aura-theme', 'duskfire-theme']);
+            const flashThemes = new Set(['midnight-bloom-theme', 'crystal-clear-theme']);
+
+
             // --- UI & CORE LOGIC FUNCTIONS ---
             const applyTheme = (theme) => {
                 document.body.className = `app-body ${theme}`;
                 localStorage.setItem('plTrackerTheme', theme);
+                updateThemeSelectionVisuals();
             };
             
             const showView = (viewId) => {
@@ -997,6 +1259,9 @@
                 const viewToShow = document.getElementById(viewId);
                 if (viewToShow) {
                     viewToShow.classList.add('active');
+                }
+                if (viewId === 'theme-view') {
+                    updateThemeSelectionVisuals();
                 }
             };
             
@@ -1073,6 +1338,58 @@
                 updateDataRing();
             };
 
+            // --- THEME SELECTOR LOGIC ---
+            const renderThemeSelector = () => {
+                const grid = document.getElementById('theme-grid');
+                if (!grid) return;
+                grid.innerHTML = ''; // Clear existing
+                
+                themeData.forEach(theme => {
+                    const card = document.createElement('div');
+                    card.className = 'theme-card';
+                    card.dataset.theme = theme.id;
+                    card.style.background = theme.colors.bg;
+                    card.style.color = theme.colors.text;
+                    card.style.borderColor = theme.colors.border + '80'; // Add transparency
+
+                    card.innerHTML = `
+                        <div class="checkmark-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg>
+                        </div>
+                        <div class="theme-card-header">
+                            <span class="theme-name-new" style="font-family: ${theme.font};">${theme.name}</span>
+                        </div>
+                        <div class="theme-swatches">
+                            <div class="swatch" style="background: ${theme.colors.p};"></div>
+                            <div class="swatch" style="background: ${theme.colors.n};"></div>
+                            <div class="swatch" style="background: ${theme.colors.a};"></div>
+                            <div class="swatch" style="background: ${theme.colors.text};"></div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            };
+
+            const updateThemeSelectionVisuals = () => {
+                const currentTheme = localStorage.getItem('plTrackerTheme') || 'dark-theme';
+                const themeCards = document.querySelectorAll('.theme-card');
+                themeCards.forEach(card => {
+                    const isSelected = card.dataset.theme === currentTheme;
+                    card.classList.toggle('selected', isSelected);
+                    if (isSelected) {
+                        const theme = themeData.find(t => t.id === currentTheme);
+                        if(theme) {
+                            card.style.setProperty('--selected-theme-border-color', theme.colors.border);
+                            card.style.setProperty('--selected-theme-shadow-color', theme.colors.border + '60');
+                            const checkmark = card.querySelector('.checkmark-icon');
+                            if(checkmark) {
+                                checkmark.style.setProperty('--selected-theme-border-color', theme.colors.border);
+                            }
+                        }
+                    }
+                });
+            };
+
             const autoSaveSession = async () => {
                 if (!userId) return;
                 const autoSaveRef = doc(db, 'artifacts', appId, 'users', userId, 'autosave', 'current');
@@ -1096,7 +1413,65 @@
                 await deleteDoc(autoSaveRef);
             };
             
-            const handleButtonClick = async (value) => { 
+            // --- ANIMATION TRIGGER FUNCTIONS ---
+            const triggerFlashAnimation = (color) => {
+                mainContainerEl.classList.remove('flash-anim', 'border-pulse-anim');
+                mainContainerEl.style.setProperty('--anim-color', color);
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                         mainContainerEl.classList.add('flash-anim');
+                    });
+                });
+            };
+
+            const triggerBorderPulseAnimation = (color) => {
+                mainContainerEl.classList.remove('flash-anim', 'border-pulse-anim');
+                mainContainerEl.style.setProperty('--anim-color', color);
+                mainContainerEl.style.setProperty('--anim-color-transparent', color + '00');
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                         mainContainerEl.classList.add('border-pulse-anim');
+                    });
+                });
+                 mainContainerEl.addEventListener('animationend', () => {
+                    mainContainerEl.classList.remove('border-pulse-anim');
+                }, { once: true });
+            };
+
+            const triggerRippleAnimation = (event, color) => {
+                const button = event.currentTarget;
+                if (!button) return;
+                const ripple = document.createElement("span");
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+                ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+                ripple.style.setProperty('--anim-color', color);
+                ripple.classList.add("ripple");
+
+                button.appendChild(ripple);
+
+                ripple.addEventListener('animationend', () => {
+                    ripple.remove();
+                }, { once: true });
+            };
+            
+            const triggerScorePulseAnimation = (color) => {
+                if (!mainScoreEl) return;
+                mainScoreEl.classList.remove('score-pulse-anim');
+                mainScoreEl.style.setProperty('--anim-color', color);
+                requestAnimationFrame(() => {
+                    mainScoreEl.classList.add('score-pulse-anim');
+                });
+                mainScoreEl.addEventListener('animationend', () => {
+                    mainScoreEl.classList.remove('score-pulse-anim');
+                }, { once: true });
+            };
+
+
+            const handleButtonClick = async (event, value) => { 
                 const previousScore = score; 
                 history.push({ state: { score, wins, losses, totalTrades, maxWin, maxLoss }, value }); 
                 score += value; 
@@ -1111,9 +1486,31 @@
                     maxLoss = Math.min(maxLoss, profit);
                 }
 
+                // --- ANIMATION DISPATCHER ---
+                const currentThemeId = localStorage.getItem('plTrackerTheme');
+                const themeInfo = themeData.find(t => t.id === currentThemeId);
+                if (themeInfo) {
+                    let animColor;
+                    if (value > 0) animColor = themeInfo.colors.p;
+                    else if (value < 0) animColor = themeInfo.colors.n;
+                    else animColor = themeInfo.colors.a;
+                    
+                    // Trigger score pulse on every theme
+                    triggerScorePulseAnimation(animColor);
+
+                    if (flashThemes.has(currentThemeId)) {
+                        triggerFlashAnimation(animColor);
+                    } else if (borderPulseThemes.has(currentThemeId)) {
+                        triggerBorderPulseAnimation(animColor);
+                    } else if (rippleThemes.has(currentThemeId)) {
+                        triggerRippleAnimation(event, animColor);
+                    }
+                }
+
                 updateDisplay(previousScore);
                 await autoSaveSession();
             };
+
             const resetCalculator = async () => { 
                 const previousScore = score; 
                 score = 0.0; 
@@ -1135,7 +1532,7 @@
                     const button = document.createElement('button');
                     button.textContent = (val > 0 ? '+' : '') + (parseFloat(val) === parseInt(val) ? val : val.toFixed(1));
                     button.className = `calc-btn ${val > 0 ? 'btn-positive' : val < 0 ? 'btn-negative' : 'btn-neutral'}`;
-                    button.onclick = () => handleButtonClick(val);
+                    button.onclick = (e) => handleButtonClick(e, val); // Pass event and value
                     buttonsContainer.appendChild(button);
                 });
             };
@@ -1287,11 +1684,11 @@
                     await resetCalculator(); 
                     showView('main-view'); 
                 });
-                document.getElementById('update-calc-btn').addEventListener('click', async () => { 
+                document.getElementById('update-calc-btn').addEventListener('click', async (e) => { 
                     const values = document.getElementById('calc-input').value.trim().split(' ').map(Number).filter(n => !isNaN(n)); 
                     await resetCalculator(); 
                     for (const val of values) {
-                        await handleButtonClick(val);
+                        await handleButtonClick(e, val);
                     }
                     showView('main-view'); 
                 });
@@ -1315,11 +1712,11 @@
 
                 // --- EVENT LISTENERS FOR TEMPLATES & SESSIONS ---
 
-                // Theme selection
+                // MODIFIED Theme selection
                 document.getElementById('theme-view').addEventListener('click', (e) => {
-                    const button = e.target.closest('.theme-option-btn');
-                    if (button) {
-                        const theme = button.dataset.theme;
+                    const card = e.target.closest('.theme-card');
+                    if (card) {
+                        const theme = card.dataset.theme;
                         applyTheme(theme);
                         showView('main-view');
                     }
@@ -1508,6 +1905,8 @@
                 setStatus(error.message, 'error');
             }
 
+            // Initial setup calls
+            renderThemeSelector();
             applyTheme(localStorage.getItem('plTrackerTheme') || 'dark-theme');
             setupEventListeners();
         });
